@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="cn">
+<!-- <html lang="en"> -->
 
 <head>
   <link rel="stylesheet" href="./index.css">
@@ -25,8 +26,8 @@
     console.log(maptpass);
   </script> -->
   <div id="app">
+    <h1 class="flex">MathPass</h1>
     <div id="UserAgreement">
-      <!-- <h2>MathPass</h2> -->
       <p>MathPass is a password manager that uses mathid to generate and check passwords.</p>
       <p>It is a simple and secure way to manage your passwords. (smile)</p>
       <p>MathPass is a free and open-source software.</p>
@@ -47,14 +48,15 @@
     </div>
     <div class="content">
       <div id="version-selector" class="flex">
-        <span>Mathematica Version</span>
+        <span class="necessary" title="Version of Mathematica. Used to control key and passwaor format.">Mathematica
+          Version</span>
         <div class="selector textarea" id="version">
           <div id="gt14">
             <span class="box">14.1.0</span>
             or
-            <span class="box">&gt;14.1</span>
-            or
             <span class="box">15.x.x</span>
+            or
+            <span class="box">&gt;14.1</span>
           </div>
           <div id="le14">
             <span class="box">12.x.x</span>
@@ -72,19 +74,19 @@
         <div class="button hide">paste</div>
       </div>
       <div class="flex">
-        <span class="necessary" title="necessary">Math id</span>
+        <span class="necessary" title="Necessary. You can find your math id at first Start up.">Math id</span>
         <div class="textarea" contenteditable="true" id="math-id" default="1234-56789-12345"></div>
         <div class="button" onclick="copy('math-id')">copy</div>
         <div class="button" onclick="paste('math-id')">paste</div>
       </div>
       <div class="flex">
-        <span>Activation Key</span>
+        <span title="The Product key which can be generated randomly When leaving blank">Activation Key</span>
         <div class="textarea" contenteditable="true" id="math-key" default="1234-5678-ABCXYZ"></div>
         <div class="button" onclick="copy('math-key')">copy</div>
         <div class="button" onclick="paste('math-key')">paste</div>
       </div>
       <div class="flex">
-        <span>Password</span>
+        <span title="Password generated from math id and activation key">Password</span>
         <div class="textarea" contenteditable="true" id="math-pass" default="1234-567-890::800001:20250809"></div>
         <div class="button" onclick="copy('math-pass')">copy</div>
         <div class="button" onclick="paste('math-pass')">paste</div>
@@ -94,7 +96,38 @@
       <div class="button" onclick="generatePassword()" id="gen_key">Generate Activation Key And Password !</div>
       <div class="button" onclick="clearActivationKey('math-key')">Clear Activation Key</div>
     </div>
+    <div id="advanced" class="card">
+      <div id="caculator-header" class="card-header">Advanced</div>
+      <div class="content">
+        <div class="flex">
+          <span title="Controls the type and version of Worfram Products">Math Num</span>
+          <div class="textarea" contenteditable="true" id="math-num" default="800001"></div>
+          <div class="button" onclick="copy('math-num')">copy</div>
+          <div class="button" onclick="paste('math-num')">paste</div>
+        </div>
+        <div class="flex">
+          <span title="The last day when the password is valid">Expire Date</span>
+          <div class="textarea" contenteditable="true" id="math-date" default="20250809"></div>
+          <div class="button" onclick="copy('math-date')">copy</div>
+          <div class="button" onclick="paste('math-date')">paste</div>
+        </div>
+        <div class="flex">
+          <span
+            title="The initial hash value used to check validation of password. Be carefal that acceptiable hashes are few.">Initial
+            Hash</span>
+          <div class="textarea" contenteditable="true" id="math-hash" default="59222"></div>
+          <div class="button" onclick="copy('math-hash')">copy</div>
+          <div class="button" onclick="paste('math-hash')">paste</div>
+        </div>
+        <div class="flex">
+          <div class="button" onclick="crackInitialHash()">&nbsp;Crack Initial Hashes from Math id, Activation Key, and Password ! &nbsp;</div>
+        </div>
+        <div id="result" class="textarea" contenteditable="true"></div>
+      </div>
+    </div>
+
   </div>
+  <div class="footer"></div>
   <script src="./index.js"></script>
 </body>
 

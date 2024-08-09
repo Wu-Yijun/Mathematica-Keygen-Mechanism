@@ -1,3 +1,4 @@
+
 function hideUserAgreement(num) {
   document.getElementById('UserAgreement').style.display = 'none';
   document.getElementById('UserAgreementSep').style.display = 'none';
@@ -129,8 +130,24 @@ function generatePassword() {
   }
   console.info('Activation Key:', mathpass.activation_key);
 
-  const mathNum = '800001';
-  if (!mathpass.generate_password(mathNum)) {
+  if (!document.getElementById('advanced').classList.contains('card-hide')) {
+    var math_num = document.getElementById('math-num').innerText;
+    math_num = MathPass.random_fill(math_num);
+    var expire_date = document.getElementById('math-date').innerText;
+    expire_date = MathPass.random_fill(expire_date);
+    var initial_hash = document.getElementById('math-hash').innerText;
+    initial_hash = MathPass.random_fill(initial_hash);
+    mathpass.set_hash(parseInt(initial_hash));
+
+    console.info('Math Num:', math_num);
+    console.info('Expire Date:', expire_date);
+    console.info('Initial Hash:', initial_hash);
+
+    if (!mathpass.generate_password(math_num, expire_date)) {
+      console.error('Cannot generate password with: ', mathpass);
+      return;
+    }
+  } else if (!mathpass.generate_password()) {
     console.error('Cannot generate password with: ', mathpass);
     return;
   }
@@ -152,4 +169,45 @@ function clearActivationKey(id) {
   } else {
     elem.innerText = '';
   }
+}
+
+// 设置点击折叠功能
+for (let element of document.getElementsByClassName('card-header')) {
+  element.addEventListener('click', () => {
+    element.classList.toggle('card-hide');
+  });
+}
+
+function crackInitialHash() {
+  var version = '14.1.0';
+  const sel = document.getElementById('version');
+  if (sel.getAttribute('value') === 0 || sel.getAttribute('value') === '0') {
+    version = '14.1.0';
+  } else if (
+      sel.getAttribute('value') === 1 || sel.getAttribute('value') === '1') {
+    version = '14.0.0';
+  } else {
+    const ver = document.getElementById('version-input');
+    version = ver.innerText || ver.getAttribute('default') || '14.1.0';
+  }
+  const math_id = document.getElementById('math-id').innerText;
+  const math_key = document.getElementById('math-key').innerText;
+  const math_pass = document.getElementById('math-pass').innerText;
+
+  const mathpass = new MathPass(math_id, version);
+  mathpass.set_activation_key(math_key);
+
+
+  var initial_hashs = `Crack from Version:\t${mathpass.version}
+Math ID:\t${mathpass.math_id}
+Activation Key:\t${mathpass.activation_key}
+Password:\t${mathpass.password}
+Initial Hash:\t`;
+  for (let i = 0; i < 65536; i++) {
+    if (mathpass.check_password(math_pass, i, true)) {
+      console.info('Initial Hash:', i);
+      initial_hashs += i + '\n';
+    }
+  }
+  document.getElementById('result').innerText = initial_hashs;
 }

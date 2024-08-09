@@ -189,3 +189,43 @@ td:hover {
 #gen_key:hover{
   background-color: rgb(181, 229, 85, 0.8);
 }
+
+.card {
+  border: 1px solid grey;
+  border-radius: 5px;
+  width: fit-content;
+  margin: auto;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  min-width: 500px;
+}
+
+.card-header::before {
+  content: '▼  ';
+}
+
+.card-header.card-hide::before {
+  content: '▶  ';
+}
+
+.card-header {
+  margin: 0;
+  padding: 5px;
+  padding-left: 15px;
+  font-weight: bolder;
+  border-bottom: 1px dotted black;
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-hide+div {
+  display: none;
+}
+
+.card-content {
+  margin: 15px;
+}
+
+#result{
+  width: -webkit-fill-available;
+}
