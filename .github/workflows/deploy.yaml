@@ -35,6 +35,9 @@ jobs:
           mv ./renotify.js ./release
           mv ./main@v14.1.0.js ./release
           mv ./index.* ./release
+          mv ./Mathematica14.png ./release
+          mv ./favicon.ico ./release
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@main
         with:

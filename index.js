@@ -201,7 +201,7 @@ function crackInitialHash() {
   var initial_hashs = `Crack from Version:\t${mathpass.version}
 Math ID:\t${mathpass.math_id}
 Activation Key:\t${mathpass.activation_key}
-Password:\t${mathpass.password}
+Password:\t${math_pass}
 Initial Hash:\t`;
   for (let i = 0; i < 65536; i++) {
     if (mathpass.check_password(math_pass, i, true)) {

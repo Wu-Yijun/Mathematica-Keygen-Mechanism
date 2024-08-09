@@ -1,22 +1,38 @@
 <!DOCTYPE html>
-<html lang="cn">
-<!-- <html lang="en"> -->
+<!-- <html lang="cn"> -->
+<html lang="en">
 
 <head>
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="https://github.com/Wu-Yijun/" />
+  <meta name="twitter:creator" content="https://github.com/Wu-Yijun/" />
+  <meta property="og:title" content="MathPass" />
+  <meta property="og:description"
+    content="Mathematica Password Generator. Use your math id and set math num to generate a password for a desired product. You can also get the initial hash from a statdard key and pass..." />
+  <meta property="og:image" content="https://wu-yijun.github.io/Mathematica-Keygen-Mechanism/Mathematica14.png" />
+  <meta itemprop="name" content="MathPass">
+  <meta itemprop="url" content="https://wu-yijun.github.io/Mathematica-Keygen-Mechanism/">
+  <meta itemprop="description"
+    content="Mathematica Password Generator. Use your math id and set math num to generate a password for a desired product. You can also get the initial hash from a statdard key and pass...">
+  <meta itemprop="image" content="https://wu-yijun.github.io/Mathematica-Keygen-Mechanism/Mathematica14.png">
+
+  <link href="favicon.ico" rel="shortcut icon">
+  <title>Mathematica Password Generator</title>
   <link rel="stylesheet" href="./index.css">
   <script src="./renotify.js"></script>
 </head>
 
 <body>
   <script src="./main@v14.1.0.js"></script>
-  <script>
+  <!-- <script>
     const maptpass = new MathPass('6205-86227-45728', '14.1.0');
     maptpass.set_activation_key('6038-4883-ABCDEF');
     maptpass.generate_password('800001', '20280101');
     maptpass.check_password();
     console.log(maptpass);
     console.log(maptpass.search_hasher());
-  </script>
+  </script> -->
   <!-- <script type="module">
     import MathPass from "./main@v14.1.0.js";
     const maptpass = new MathPass('6205-86227-45728', '14.1.0');
@@ -26,7 +42,7 @@
     console.log(maptpass);
   </script> -->
   <div id="app">
-    <h1 class="flex">MathPass</h1>
+    <h1 class="flex"><span><img src="Mathematica14.png" style="height: 3em;"/></span>MathPass</h1>
     <div id="UserAgreement">
       <p>MathPass is a password manager that uses mathid to generate and check passwords.</p>
       <p>It is a simple and secure way to manage your passwords. (smile)</p>
@@ -97,7 +113,7 @@
       <div class="button" onclick="clearActivationKey('math-key')">Clear Activation Key</div>
     </div>
     <div id="advanced" class="card">
-      <div id="caculator-header" class="card-header">Advanced</div>
+      <div id="caculator-header" class="card-header card-hide">Advanced</div>
       <div class="content">
         <div class="flex">
           <span title="Controls the type and version of Worfram Products">Math Num</span>
@@ -120,7 +136,8 @@
           <div class="button" onclick="paste('math-hash')">paste</div>
         </div>
         <div class="flex">
-          <div class="button" onclick="crackInitialHash()">&nbsp;Crack Initial Hashes from Math id, Activation Key, and Password ! &nbsp;</div>
+          <div class="button" onclick="crackInitialHash()">&nbsp;Crack Initial Hashes from Math id, Activation Key, and
+            Password ! &nbsp;</div>
         </div>
         <div id="result" class="textarea" contenteditable="true"></div>
       </div>
