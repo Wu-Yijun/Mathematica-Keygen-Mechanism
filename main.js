@@ -5,7 +5,8 @@ const hasher2_code = 0b1000001100100101;
 
 // others magic numbers are not being tested and may not work
 const magicNumbers = [
-  // 10690, 12251, 17649, 24816, 33360, 35944, 36412, 42041, 42635, 44011,
+  // 10690, 12251, 17649, 24816, 33360, 35944, 36412,
+  // 42041, 42635, 44011,
   // 53799, 56181, 58536,
   59222,
   // 61041
@@ -224,12 +225,12 @@ function check_format(format, s) {
  * @param {Number} generate_number Number of passwords to be generated
  * @returns {{mathId: string, activationKey: string, password: string}}
  *     Generated Password
- * 
+ *
  * The suffix may determine the function of Mathematica.
  * For example, the suffix 1 may be used for the `Standard version`.
  * The suffix 255 may be used for the `Wolfram Player Pro`.
  * The suffix 65535 may be used for the `Student version`.
- * 
+ *
  */
 function main(id, suffix = 1, generate_number = 6) {
   const mathId = String(id);
@@ -239,7 +240,8 @@ function main(id, suffix = 1, generate_number = 6) {
   }
   var i = 1;
   while (true) {
-    const activationKey = random_fill('XXXX-XXXXX-XXXXX');
+    const activationKey = '8778-0608-QAJYEG';
+    // const activationKey = random_fill('XXXX-XXXX-XXXXXX');
     const magicNumber =
         magicNumbers[Math.floor(Math.random() * magicNumbers.length)];
     const str = mathId + '$' + mathNum + '&' + activationKey;
@@ -259,9 +261,32 @@ function main(id, suffix = 1, generate_number = 6) {
   }
 }
 
+
+
 // export default main;
 // export {main, check_password, generate_password, check_format, random_fill};
 
 window.MMA = {
-  main, check_password, generate_password, check_format, random_fill
+  main,
+  check_password,
+  generate_password,
+  check_format,
+  random_fill
 };
+
+/* mathpass
+%(*userregistered*)
+laptop-j851nhdo		8778-0608-QAJYEG	1859-585-737::80000D:20250427
+*/
+(function() {
+const mathId = '6205-86227-45728';
+const activationKey = '8778-0608-QAJYEG';
+const mathNum = '80000D';
+const magicNumber =
+    magicNumbers[Math.floor(Math.random() * magicNumbers.length)];
+const str = mathId + '$' + mathNum + '&' + activationKey;
+console.log('Generating Password for:', str);
+const password = '1859-585-737::80000D:20250427';
+check_password(str, magicNumber, password, mathNum);
+debugger
+})();
