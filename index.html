@@ -1,11 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="cn">
 
 <head>
-  <script src="./main@v14.1.0.js"></script>
+  <link rel="stylesheet" href="./index.css">
+  <script src="./renotify.js"></script>
 </head>
 
 <body>
+  <script src="./main@v14.1.0.js"></script>
+  <script>
+    const maptpass = new MathPass('6205-86227-45728', '14.1.0');
+    maptpass.set_activation_key('6038-4883-ABCDEF');
+    maptpass.generate_password('800001', '20280101');
+    maptpass.check_password();
+    console.log(maptpass);
+    console.log(maptpass.search_hasher());
+  </script>
+  <!-- <script type="module">
+    import MathPass from "./main@v14.1.0.js";
+    const maptpass = new MathPass('6205-86227-45728', '14.1.0');
+    maptpass.set_activation_key('6038-4883-ABCDEF');
+    maptpass.generate_password('800001', '20280101');
+    maptpass.check_password();
+    console.log(maptpass);
+  </script> -->
+  <div id="app">
+    <div id="UserAgreement">
+      <!-- <h2>MathPass</h2> -->
+      <p>MathPass is a password manager that uses mathid to generate and check passwords.</p>
+      <p>It is a simple and secure way to manage your passwords. (smile)</p>
+      <p>MathPass is a free and open-source software.</p>
+      <p>By using it, you agree to use it in accordance with the applicable laws and regulations.<br>
+        The author of MathPass is not responsible for any damages caused by the use of MathPass.<br>
+        You also agree to use it at your own risk.</p>
+      <div class="flex">
+        <div class="button" id="i-agree-1" onclick="hideUserAgreement(1)">I'm poor, but I agree</div>
+        <div class="button" id="i-agree-2" onclick="hideUserAgreement(2)">I Agree</div>
+        <div class="button" id="i-agree-3" onclick="hideUserAgreement(3)">I can't agree more</div>
+      </div>
+    </div>
+    <div class="seperator" id="UserAgreementSep"></div>
+    <div class="usertip" id="UserAgreementTip" onclick="hideUserAgreement(0)">
+      Oh no, you have not agree the user agreement,
+      but I know that you've heard of thouasnds of 'By using it...'
+      <span class="bold italic">Anyhow, Hide it</span>
+    </div>
+    <div class="content">
+      <div id="version-selector" class="flex">
+        <span>Mathematica Version</span>
+        <div class="selector textarea" id="version">
+          <div id="gt14">
+            <span class="box">14.1.0</span>
+            or
+            <span class="box">&gt;14.1</span>
+            or
+            <span class="box">15.x.x</span>
+          </div>
+          <div id="le14">
+            <span class="box">12.x.x</span>
+            or
+            <span class="box">13.x.x</span>
+            or
+            <span class="box">&le;14.0</span>
+          </div>
+          <div id="others">
+            <span>Other version &nbsp;</span>
+            <span class="textarea" contenteditable="true" id="version-input" default="14.1.0"></span>
+          </div>
+        </div>
+        <div class="button hide">copy</div>
+        <div class="button hide">paste</div>
+      </div>
+      <div class="flex">
+        <span class="necessary" title="necessary">Math id</span>
+        <div class="textarea" contenteditable="true" id="math-id" default="1234-56789-12345"></div>
+        <div class="button" onclick="copy('math-id')">copy</div>
+        <div class="button" onclick="paste('math-id')">paste</div>
+      </div>
+      <div class="flex">
+        <span>Activation Key</span>
+        <div class="textarea" contenteditable="true" id="math-key" default="1234-5678-ABCXYZ"></div>
+        <div class="button" onclick="copy('math-key')">copy</div>
+        <div class="button" onclick="paste('math-key')">paste</div>
+      </div>
+      <div class="flex">
+        <span>Password</span>
+        <div class="textarea" contenteditable="true" id="math-pass" default="1234-567-890::800001:20250809"></div>
+        <div class="button" onclick="copy('math-pass')">copy</div>
+        <div class="button" onclick="paste('math-pass')">paste</div>
+      </div>
+    </div>
+    <div class="flex">
+      <div class="button" onclick="generatePassword()" id="gen_key">Generate Activation Key And Password !</div>
+      <div class="button" onclick="clearActivationKey('math-key')">Clear Activation Key</div>
+    </div>
+  </div>
+  <script src="./index.js"></script>
 </body>
 
 </html>

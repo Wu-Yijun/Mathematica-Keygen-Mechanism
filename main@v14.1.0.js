@@ -1,6 +1,15 @@
-// --- Magic Numbers ---
-
-
+(function(global, factory) {
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  // CommonJS 环境
+  module.exports = factory();
+} else if (typeof define === 'function' && define.amd) {
+  // AMD 环境
+  define(factory);
+} else {
+  // 浏览器环境，全局变量方式
+  global.MathPass = factory();
+}
+}(typeof window !== 'undefined' ? window : this, function() {
 
 /**
  * MathPass class to generate and check passwords.
@@ -31,7 +40,7 @@ class MathPass {
       version = '14.1.0',
   ) {
     this.version = MathPass.get_version_code(version);
-    this.set_math_id(math_id);
+    this.set_math_id(math_id)
     this.activation_key = MathPass.random_activation_key();
     MathPass.hash = 24816;
     this.password = '';
@@ -67,7 +76,13 @@ class MathPass {
         (this.version[0] === major && this.version[1] === minor &&
          this.version[2] >= patch);
   }
-
+  activation_key_format(){
+    if(this.version_compare(14,1,0)){
+      return 'xxxx-xxxx-aaaaaa';
+    }else{
+      return 'xxxx-xxxx-xxxxxx';
+    }
+  }
 
 
   search_hasher(password = this.password, max_hasher = 65536) {
@@ -380,21 +395,25 @@ class MathPass {
    * @param {string} format Format with 'x' to be checked with numbers, 'a' with
    *     characters (A-Z), 'b' with x or a
    * @param {string} s String to be checked by the format
+   * @param {boolean} exact Accept 'a', 'b' or 'x' if disabled
    * @returns {boolean} True if the string is corresponding to the format
    *
    * @example
    * check_format('xxxx-xxxx-ABCaaa', '1234-5678-ABCDEF') => true
    */
-  static check_format(format, s) {
+  static check_format(format, s, exact = true) {
     if (format.length !== s.length) return false;
     for (let i = 0; i < format.length; i++) {
       if (format[i] === 'x') {
-        if (s[i] < '0' || s[i] > '9') return false
+        if (exact || s[i] !== 'x')
+          if (s[i] < '0' || s[i] > '9') return false
       } else if (format[i] === 'a') {
-        if (s[i] < 'A' || s[i] > 'Z') return false;
+        if (exact || s[i] !== 'a')
+          if (s[i] < 'A' || s[i] > 'Z') return false;
       } else if (format[i] === 'b') {
-        if ((s[i] < '0' || s[i] > '9') && (s[i] < 'A' || s[i] > 'Z'))
-          return false;
+        if (exact || s[i] !== 'b')
+          if ((s[i] < '0' || s[i] > '9') && (s[i] < 'A' || s[i] > 'Z'))
+            return false;
       } else {
         if (format[i] !== s[i]) return false;
       }
@@ -421,19 +440,9 @@ class MathPass {
     return year + month + day;
   }
 }
+return MathPass;
+}));
 
 
-const maptpass_old = new MathPass('6205-86227-45728', '13.15.0');
-maptpass_old.set_activation_key('6038-4883-111111');
-maptpass_old.generate_password('800001', '20280101');
-maptpass_old.check_password();
-console.log(maptpass_old);
-console.log(maptpass_old.search_hasher());
-
-
-const maptpass = new MathPass('6205-86227-45728', '14.1.0');
-maptpass.set_activation_key('6038-4883-ABCDEF');
-maptpass.generate_password('800001', '20280101');
-maptpass.check_password();
-console.log(maptpass);
-console.log(maptpass.search_hasher());
+// 在 ES6 模块环境中导出
+// export default MathPass;
