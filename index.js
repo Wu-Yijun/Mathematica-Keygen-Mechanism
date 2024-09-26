@@ -113,19 +113,19 @@ function paste(id) {
   let textareas = document.getElementsByClassName('textarea');
   for (let i = 0; i < textareas.length; i++) {
     const textarea = textareas[i];
-    const default_text = textarea.getAttribute('default');
+    let default_text = textarea.getAttribute('default');
     if (default_text) {
       textarea.innerText = default_text;
       textarea.style.color = 'gray';
       textarea.addEventListener('focus', () => {
-        if (textarea.innerText === default_text) {
+        if (textarea.innerText === textarea.getAttribute('default')) {
           textarea.innerText = '';
           textarea.style.color = 'black';
         }
       });
       textarea.addEventListener('blur', () => {
         if (textarea.innerText === '') {
-          textarea.innerText = default_text;
+          textarea.innerText = textarea.getAttribute('default');
           textarea.style.color = 'gray';
         }
       });
@@ -133,6 +133,58 @@ function paste(id) {
   }
 }
 
+function detectVersion() {
+  const sel = document.getElementById('version');
+  var version = '14.1.0';
+  if (sel.getAttribute('value') === 0 || sel.getAttribute('value') === '0') {
+    version = '14.1.0';
+  } else if (
+      sel.getAttribute('value') === 1 || sel.getAttribute('value') === '1') {
+    version = '14.0.0';
+  } else {
+    const ver = document.getElementById('version-input');
+    version = ver.innerText || ver.getAttribute('default') || '14.1.0';
+  }
+  return version;
+}
+function updateDefaultContent() {
+  let version = detectVersion();
+  let versionCode = MathPass.get_version_code(version);
+  if (versionCode[0] > 14 || (versionCode[0] === 14 && versionCode[1] >= 1)) {
+    let mk = document.getElementById('math-key');
+    mk.setAttribute('default', '1234-5678-ABCXYZ');
+    if (mk.innerText == '1234-5678-123456') {
+      mk.innerText = '1234-5678-ABCXYZ';
+    }
+    let mp = document.getElementById('math-pass');
+    mp.setAttribute('default', '1234-567-890::1');
+    if (mp.innerText == '1234-567-890::1') {
+      mp.innerText = '1234-567-890::800001:20250809';
+    }
+    let mn = document.getElementById('math-num');
+    mn.setAttribute('default', '1');
+    if (mn.innerText == '1') {
+      mn.innerText = '800001';
+    }
+  } else {
+    let mk = document.getElementById('math-key');
+    mk.setAttribute('default', '1234-5678-123456');
+    if (mk.innerText == '1234-5678-ABCXYZ') {
+      mk.innerText = '1234-5678-123456';
+    }
+    let mp = document.getElementById('math-pass');
+    mp.setAttribute('default', '1234-567-890::800001:20250809');
+    if (mp.innerText == '1234-567-890::800001:20250809') {
+      mp.innerText = '1234-567-890::1';
+    }
+    let mn = document.getElementById('math-num');
+    mn.setAttribute('default', '800001');
+    if (mn.innerText == '800001') {
+      mn.innerText = '1';
+    }
+  }
+}
+document.getElementById('version').addEventListener('click', updateDefaultContent);
 
 
 function generatePassword() {
@@ -226,7 +278,7 @@ function clearActivationKey(id) {
   }
 }
 
-// 设置点击折叠功能
+
 for (let element of document.getElementsByClassName('card-header')) {
   element.addEventListener('click', () => {
     element.classList.toggle('card-hide');
