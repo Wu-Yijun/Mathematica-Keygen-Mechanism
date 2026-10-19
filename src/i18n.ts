@@ -38,13 +38,17 @@ export const STRINGS: Record<string, Text> = {
   "version.label": { zh: "Mathematica 版本", en: "Mathematica version" },
   "version.le14": { zh: "≤ 14.0.x", en: "≤ 14.0.x" },
   "version.ge141": { zh: "≥ 14.1.0", en: "≥ 14.1.0" },
-  "version.note.le14": {
-    zh: "旧格式：password = signature::LicenseCode（无到期日），消息 = mathID$LicenseCode&activationKey，激活码为 6 位数字。",
-    en: "Old format: password = signature::LicenseCode (no expiry date), message = mathID$LicenseCode&activationKey, activation key is 6 digits.",
+  "version.note.ge141.title": { zh: "当前格式：", en: "Current format:" },
+  "version.note.le14.title": { zh: "旧格式：", en: "Old format:" },
+  "version.note.password": { zh: "password", en: "password" },
+  "version.note.message": { zh: "消息", en: "message" },
+  "version.note.actkey.ge141": {
+    zh: "激活码可含数字与字母（xxxx-xxxx-aaaaaa）",
+    en: "the activation key may contain digits and letters (xxxx-xxxx-aaaaaa)",
   },
-  "version.note.ge141": {
-    zh: "当前格式：password = signature::LicenseCode:YYYYMMDD，消息 = mathID@YYYYMMDD$LicenseCode&activationKey，激活码可含字母。",
-    en: "Current format: password = signature::LicenseCode:YYYYMMDD, message = mathID@YYYYMMDD$LicenseCode&activationKey, activation key may contain letters.",
+  "version.note.actkey.le14": {
+    zh: "激活码为 6 位数字（xxxx-xxxx-xxxxxx）",
+    en: "the activation key is 6 digits (xxxx-xxxx-xxxxxx)",
   },
 
   "mathid.label": { zh: "Math ID", en: "Math ID" },

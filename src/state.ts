@@ -116,6 +116,18 @@ export function formatLicenseCode(s: string): string {
  * state
  * ------------------------------------------------------------------ */
 
+/** The two message/password shapes, per version mode. */
+export const VERSION_FORMATS: Record<VersionMode, { password: string; message: string }> = {
+  ge141: {
+    password: "signature::LicenseCode:YYYYMMDD",
+    message: "mathID@YYYYMMDD$LicenseCode&activationKey",
+  },
+  le14: {
+    password: "signature::LicenseCode",
+    message: "mathID$LicenseCode&activationKey",
+  },
+};
+
 export function defaultTableFor(version: VersionMode): { table: number[]; source: TableSource } {
   return version === "ge141"
     ? { table: [...V15_TABLE], source: "builtin" }

@@ -59,7 +59,7 @@
             <span data-i18n="version.ge141"></span>
           </button>
         </div>
-        <p class="note" id="version-note"></p>
+        <p class="note format" id="version-note"></p>
       </div>
 
       <!-- math id -->
@@ -75,8 +75,8 @@
         <div class="row">
           <input id="mathid" class="input mono" type="text" spellcheck="false" autocomplete="off"
             placeholder="1234-56789-12345">
-          <button type="button" class="btn btn--icon" id="mathid-sample" data-i18n="btn.sample"></button>
-          <button type="button" class="btn btn--icon" id="mathid-paste" data-i18n="btn.paste"></button>
+          <button type="button" class="btn btn--icon btn--basiconly" id="mathid-sample" data-i18n="btn.sample"></button>
+          <button type="button" class="btn btn--icon btn--basiconly" id="mathid-paste" data-i18n="btn.paste"></button>
         </div>
         <div class="row row--actions">
           <button type="button" class="btn btn--primary" id="btn-generate-basic" data-i18n="actions.generate"></button>
@@ -98,8 +98,8 @@
         <input id="basic-password" class="input mono" type="text" spellcheck="false" autocomplete="off"
           placeholder="1234-567-890::800001:20300101">
         <div class="row row--actions">
-          <span id="basic-verdict" class="badge badge--idle" data-i18n="common.idle"></span>
-          <button type="button" class="btn btn--icon" id="basic-copy" data-i18n="btn.copy"></button>
+          <span id="basic-verdict" class="badge badge--idle"></span>
+          <button type="button" class="btn btn--icon" id="basic-copy" data-i18n="btn.copyPassword"></button>
           <button type="button" class="btn btn--icon" id="basic-verify" data-i18n="actions.verify"></button>
         </div>
       </div>
@@ -219,7 +219,7 @@
           <div class="card__head">
             <h2 class="card__title">
               <span data-i18n="result.title"></span>
-              <span id="result-badge" class="badge badge--idle" data-i18n="common.idle"></span>
+              <span id="result-badge" class="badge badge--idle"></span>
             </h2>
           </div>
           <label class="field-label" for="result-password" data-i18n="result.password"></label>

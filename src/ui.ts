@@ -9,7 +9,7 @@ import {
 import { decodeLicenseCode } from "../../report/code/licenseCode.ts";
 import { DOC_BASE, GITHUB_BASE, applyI18n, detectLang, getLang, setLang, t, tf } from "./i18n.ts";
 import {
-  CAPABILITY_BITS, CLASS_BITS, DEFAULT_ACCEPTED_CRC, PRODUCT_BITS, addToDate, daysLeft,
+  CAPABILITY_BITS, CLASS_BITS, DEFAULT_ACCEPTED_CRC, PRODUCT_BITS, VERSION_FORMATS, addToDate, daysLeft,
   defaultAcceptedCrcFor, defaultTableFor, formatLicenseCode, fromYYYYMMDD, isValidActivationKey,
   isValidLicenseCode, isValidMathID, loadLang, loadState, randomActivationKey, randomMathID,
   saveLang, saveState, selectedBitOf, toYYYYMMDD, withBit, withExclusiveBit,
@@ -22,6 +22,9 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string): T => document.getEl
 let state: State = loadState();
 let lang = loadLang() ?? detectLang();
 setLang(lang);
+
+/** The last analysis shown, kept so a language switch can re-render it verbatim. */
+let lastAnalysis: Analysis | null = null;
 
 /* ------------------------------------------------------------------ *
  * small helpers
@@ -192,6 +195,13 @@ function renderCrcField(): void {
  * results
  * ------------------------------------------------------------------ */
 
+function setPasswordState(kind: "idle" | "valid" | "invalid"): void {
+  const el = $("result-password");
+  el.classList.toggle("is-idle", kind === "idle");
+  el.classList.toggle("is-valid", kind === "valid");
+  el.classList.toggle("is-invalid", kind === "invalid");
+}
+
 function setVerdict(kind: "idle" | "valid" | "invalid", extra = ""): void {
   const cls = kind === "idle" ? "badge--idle" : kind === "valid" ? "badge--ok" : "badge--bad";
   const text = kind === "idle" ? t("common.idle") : kind === "valid" ? t("verdict.valid") : t("verdict.invalid");
@@ -200,6 +210,7 @@ function setVerdict(kind: "idle" | "valid" | "invalid", extra = ""): void {
     el.textContent = text + (extra ? ` · ${extra}` : "");
     void id;
   }
+  setPasswordState(kind);
 }
 
 function setPassword(password: string): void {
@@ -248,6 +259,7 @@ function analyse(mathID: string, activationKey: string, password: string): Analy
 }
 
 function showAnalysis(a: Analysis): void {
+  lastAnalysis = a;
   clearKv();
   const r = a.result;
   addKv("result.kv.message", a.message);
@@ -422,13 +434,41 @@ function renderMode(): void {
   $("mode-toggle").classList.toggle("chip--accent", !advanced);
 }
 
+function renderVersionNote(): void {
+  const f = VERSION_FORMATS[state.version];
+  const note = $("version-note");
+  const title = document.createElement("span");
+  title.className = "format__title";
+  title.textContent = t(state.version === "ge141" ? "version.note.ge141.title" : "version.note.le14.title");
+  const line = (label: string, code: string) => {
+    const row = document.createElement("span");
+    row.className = "format__line";
+    const l = document.createElement("span");
+    l.className = "format__label";
+    l.textContent = `${label} =`;
+    const c = document.createElement("code");
+    c.textContent = code;
+    row.append(l, c);
+    return row;
+  };
+  const actkey = document.createElement("span");
+  actkey.className = "format__line";
+  actkey.textContent = t(state.version === "ge141" ? "version.note.actkey.ge141" : "version.note.actkey.le14");
+  note.replaceChildren(
+    title,
+    line(t("version.note.password"), f.password),
+    line(t("version.note.message"), f.message),
+    actkey,
+  );
+}
+
 function renderVersion(): void {
   for (const el of $("version-seg").querySelectorAll<HTMLButtonElement>(".seg")) {
     const on = el.dataset.version === state.version;
     el.classList.toggle("seg--on", on);
     el.setAttribute("aria-checked", String(on));
   }
-  $("version-note").textContent = t(state.version === "ge141" ? "version.note.ge141" : "version.note.le14");
+  renderVersionNote();
   $("actkey-note").textContent = t(state.version === "ge141" ? "actkey.note.ge141" : "actkey.note.le14");
 
   const legacy = state.version === "le14";
@@ -457,6 +497,8 @@ function render(): void {
   renderInputs();
   renderLicenseCode();
   renderCrcField();
+  if (lastAnalysis) showAnalysis(lastAnalysis);
+  else setVerdict("idle");
   persist();
 }
 
@@ -601,6 +643,12 @@ function wire(): void {
   $("btn-extract").addEventListener("click", extractCrc);
   $("result-copy").addEventListener("click", () => void copyText(state.password));
   $("basic-copy").addEventListener("click", () => void copyText(state.password));
+
+  // editing the password invalidates the verdict shown next to it
+  $<HTMLInputElement>("result-password").addEventListener("input", () => {
+    lastAnalysis = null;
+    setVerdict("idle");
+  });
 
   // table panel
   $<HTMLInputElement>("dll-file").addEventListener("change", (e) => {

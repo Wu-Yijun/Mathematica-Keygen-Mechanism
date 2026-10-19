@@ -164,6 +164,8 @@ body {
 }
 
 .wb--advanced .basic-only { display: none; }
+/* the sample / paste helpers next to the Math ID are Basic-mode affordances */
+.wb--advanced .btn--basiconly { display: none; }
 
 @media (max-width: 900px) {
   .wb--advanced { grid-template-columns: minmax(0, var(--col-max)); }
@@ -233,12 +235,38 @@ input[type="file"].input { padding: 0.3rem; background: var(--bg-soft); }
 
 .field-label { display: block; margin: 0.7rem 0 0.3rem; font-size: 0.82rem; color: var(--fg-muted); }
 
-/* the generated password is the point of the page: make it stand out */
+/* the generated password is the point of the page: its look follows the verdict */
 .input--spotlight {
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 6%, var(--bg-soft));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+  transition: border-color .25s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
   font-weight: 650;
+}
+.input--spotlight.is-idle { border-color: var(--line); background: var(--bg-sunk); }
+.input--spotlight.is-valid {
+  border-color: var(--ok);
+  color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 8%, var(--bg-soft));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent);
+}
+.input--spotlight.is-invalid {
+  border-color: var(--bad);
+  color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 8%, var(--bg-soft));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 18%, transparent);
+}
+
+/* the version note: four explicit lines, with the format parts set as code */
+.format { padding: 0.55rem 0.7rem; background: var(--bg-sunk); border-radius: var(--radius-sm); }
+.format__title { display: block; color: var(--fg-muted); margin-bottom: 0.2rem; }
+.format__line { display: block; margin-top: 0.16rem; }
+.format__label { color: var(--fg-muted); margin-right: 0.35rem; }
+.format code {
+  font-family: var(--mono);
+  font-size: 0.94em;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.04rem 0.3rem;
+  overflow-wrap: anywhere;
 }
 
 /* -------------------------------------------------------------- segmented */
