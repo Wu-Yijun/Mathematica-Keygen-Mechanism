@@ -9,10 +9,10 @@ import {
 import { decodeLicenseCode } from "../../report/code/licenseCode.ts";
 import { DOC_BASE, GITHUB_BASE, applyI18n, detectLang, getLang, setLang, t, tf } from "./i18n.ts";
 import {
-  BASE_BITS, CAPABILITY_BITS, CLASS_BITS, DEFAULT_ACCEPTED_CRC, PRODUCT_BITS, addToDate, daysLeft,
+  CAPABILITY_BITS, CLASS_BITS, DEFAULT_ACCEPTED_CRC, PRODUCT_BITS, addToDate, daysLeft,
   defaultAcceptedCrcFor, defaultTableFor, formatLicenseCode, fromYYYYMMDD, isValidActivationKey,
   isValidLicenseCode, isValidMathID, loadLang, loadState, randomActivationKey, randomMathID,
-  saveLang, saveState, selectedBitOf, toYYYYMMDD, unknownBits, withBit, withExclusiveBit,
+  saveLang, saveState, selectedBitOf, toYYYYMMDD, withBit, withExclusiveBit,
   type BitOption, type State, type VersionMode,
 } from "./state.ts";
 import { parsePe, scanWithCodeRefs, type CrcTableCandidate } from "./pe.ts";
@@ -131,7 +131,6 @@ function buildEditor(): void {
   $("lc-product").replaceChildren(noneChip(PRODUCT_BITS), ...PRODUCT_BITS.map((o) => bitChip(o, "exclusive", PRODUCT_BITS)));
   $("lc-class").replaceChildren(noneChip(CLASS_BITS), ...CLASS_BITS.map((o) => bitChip(o, "exclusive", CLASS_BITS)));
   $("lc-caps").replaceChildren(...CAPABILITY_BITS.map((o) => bitChip(o, "toggle")));
-  $("lc-misc").replaceChildren(...BASE_BITS.map((o) => bitChip(o, "toggle")));
 }
 
 function renderLicenseCode(): void {
@@ -153,17 +152,12 @@ function renderLicenseCode(): void {
     const bit = Number(el.dataset.bit);
     el.classList.toggle("bit--on", ((parseInt(state.licenseCode || "0", 16) >>> bit) & 1) === 1);
   }
-  for (const el of $("lc-misc").querySelectorAll<HTMLButtonElement>(".bit")) {
-    const bit = Number(el.dataset.bit);
-    el.classList.toggle("bit--on", ((parseInt(state.licenseCode || "0", 16) >>> bit) & 1) === 1);
-  }
 
   const d = decodeLicenseCode(state.licenseCode || "0");
   const caps = d.capabilities.length ? d.capabilities.join(", ") : t("lc.summary.none");
-  const extra = unknownBits(state.licenseCode);
   $("lc-summary").textContent =
     `${t("lc.summary.product")}: ${d.product} · ${t("lc.summary.class")}: ${d.licenseClass} · ` +
-    `${t("lc.summary.caps")}: ${caps}` + (extra.length ? ` · bits ${extra.join(",")}` : "");
+    `${t("lc.summary.caps")}: ${caps}`;
   $("lc-summary").title = `0x${d.value.toString(16).toUpperCase()} (bit ${d.bits.join(",")})`;
 
   $("lc-editor").hidden = state.version === "le14";

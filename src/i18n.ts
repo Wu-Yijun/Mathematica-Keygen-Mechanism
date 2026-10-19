@@ -56,6 +56,7 @@ export const STRINGS: Record<string, Text> = {
   "btn.random": { zh: "随机", en: "random" },
   "btn.paste": { zh: "粘贴", en: "paste" },
   "btn.copy": { zh: "复制", en: "copy" },
+  "btn.copyPassword": { zh: "复制密钥", en: "Copy password" },
 
   "actkey.label": { zh: "激活码", en: "Activation key" },
   "actkey.note.ge141": {
@@ -71,7 +72,6 @@ export const STRINGS: Record<string, Text> = {
   "lc.product": { zh: "产品（单选）", en: "Product (single choice)" },
   "lc.class": { zh: "许可类别（单选）", en: "Licence class (single choice)" },
   "lc.caps": { zh: "特性（可多选）", en: "Capabilities (multi-choice)" },
-  "lc.misc": { zh: "其他位", en: "Other bits" },
   "lc.product.none": { zh: "不指定（Wolfram）", en: "unspecified (Wolfram)" },
   "lc.class.none": { zh: "Professional（无类别位）", en: "Professional (no class bit)" },
   "lc.note.le14": {

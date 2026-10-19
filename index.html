@@ -149,10 +149,6 @@
             <span class="lc-group__legend" data-i18n="lc.caps"></span>
             <div class="bits" id="lc-caps"></div>
           </div>
-          <div class="lc-group lc-group--inline">
-            <span class="lc-group__legend" data-i18n="lc.misc"></span>
-            <div class="bits" id="lc-misc"></div>
-          </div>
         </div>
         <p class="note" id="lc-summary"></p>
         <p class="note note--warn" id="lc-note-le14" hidden data-i18n="lc.note.le14"></p>
@@ -196,27 +192,27 @@
         <p class="note" id="crc-note"></p>
       </div>
 
-      <!-- actions -->
-      <div class="card adv-only" data-field="actions">
-        <div class="row row--actions">
-          <button type="button" class="btn btn--primary" id="btn-generate" data-i18n="actions.generate"></button>
-          <span class="btn-wrap">
-            <button type="button" class="btn" id="btn-verify" data-i18n="actions.verify"></button>
-            <button type="button" class="hint" data-tip="tip.verify" data-doc="03-verification-flow.md"
-              aria-label="?">?</button>
-          </span>
-          <span class="btn-wrap">
-            <button type="button" class="btn" id="btn-extract" data-i18n="actions.extract"></button>
-            <button type="button" class="hint" data-tip="tip.extract" data-doc="05-accepted-crc.md"
-              aria-label="?">?</button>
-          </span>
-        </div>
-      </div>
-
     </section>
 
     <section class="wb__col wb__col--side">
       <div class="wb__inner">
+
+        <!-- actions -->
+        <div class="card adv-only" data-field="actions">
+          <div class="row row--actions">
+            <button type="button" class="btn btn--primary" id="btn-generate" data-i18n="actions.generate"></button>
+            <span class="btn-wrap">
+              <button type="button" class="btn" id="btn-verify" data-i18n="actions.verify"></button>
+              <button type="button" class="hint" data-tip="tip.verify" data-doc="03-verification-flow.md"
+                aria-label="?">?</button>
+            </span>
+            <span class="btn-wrap">
+              <button type="button" class="btn" id="btn-extract" data-i18n="actions.extract"></button>
+              <button type="button" class="hint" data-tip="tip.extract" data-doc="05-accepted-crc.md"
+                aria-label="?">?</button>
+            </span>
+          </div>
+        </div>
 
         <!-- result -->
         <div class="card adv-only" data-field="result">
@@ -226,10 +222,11 @@
               <span id="result-badge" class="badge badge--idle" data-i18n="common.idle"></span>
             </h2>
           </div>
-          <input id="result-password" class="input mono" type="text" spellcheck="false" autocomplete="off"
-            aria-live="polite" placeholder="1234-567-890::800001:20300101">
+          <label class="field-label" for="result-password" data-i18n="result.password"></label>
+          <input id="result-password" class="input mono input--spotlight" type="text" spellcheck="false"
+            autocomplete="off" aria-live="polite" placeholder="1234-567-890::800001:20300101">
           <div class="row row--actions">
-            <button type="button" class="btn btn--icon" id="result-copy" data-i18n="btn.copy"></button>
+            <button type="button" class="btn btn--icon" id="result-copy" data-i18n="btn.copyPassword"></button>
           </div>
           <dl class="kv" id="result-kv"></dl>
         </div>

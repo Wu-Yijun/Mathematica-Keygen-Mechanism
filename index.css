@@ -143,10 +143,16 @@ body {
   grid-template-rows: 1fr;
   transition: grid-template-rows .45s cubic-bezier(.4, 0, .2, 1), margin-top .45s, opacity .3s;
 }
-.adv-collapse > * { min-height: 0; }
+.adv-collapse > * { min-height: 0; transition: padding-top .45s, padding-bottom .45s, border-top-width .45s, border-bottom-width .45s; }
 .adv-collapse.is-animating > * { overflow: hidden; }
 .wb--basic .adv-collapse { grid-template-rows: 0fr; margin-top: 0; opacity: 0; pointer-events: none; }
-.wb--basic .adv-collapse > * { overflow: hidden; }
+.wb--basic .adv-collapse > * {
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top-width: 0;
+  border-bottom-width: 0;
+}
 
 .wb--advanced .basic-only { display: none; }
 
@@ -185,6 +191,7 @@ body {
   padding: 0.42rem 0.8rem;
   font: inherit;
   font-size: 0.9rem;
+  white-space: nowrap;
   cursor: pointer;
   transition: background .18s, border-color .18s, transform .12s;
 }
@@ -213,6 +220,16 @@ input[type="file"].input { padding: 0.3rem; background: var(--bg-soft); }
 
 .note { margin: 0.55rem 0 0; font-size: 0.82rem; color: var(--fg-muted); }
 .note--warn { color: var(--warn); }
+
+.field-label { display: block; margin: 0.7rem 0 0.3rem; font-size: 0.82rem; color: var(--fg-muted); }
+
+/* the generated password is the point of the page: make it stand out */
+.input--spotlight {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-soft));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+  font-weight: 650;
+}
 
 /* -------------------------------------------------------------- segmented */
 
