@@ -1,151 +1,279 @@
 <!DOCTYPE html>
-<!-- <html lang="cn"> -->
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:site" content="https://github.com/Wu-Yijun/" />
-  <meta name="twitter:creator" content="https://github.com/Wu-Yijun/" />
-  <meta property="og:title" content="MathPass" />
-  <meta property="og:description"
-    content="Mathematica Password Generator. Use your math id and set math num to generate a password for a desired product. You can also get the initial hash from a statdard key and pass..." />
-  <meta property="og:image" content="https://wu-yijun.github.io/Mathematica-Keygen-Mechanism/Mathematica14.png" />
-  <meta itemprop="name" content="MathPass">
-  <meta itemprop="url" content="https://wu-yijun.github.io/Mathematica-Keygen-Mechanism/">
-  <meta itemprop="description"
-    content="Mathematica Password Generator. Use your math id and set math num to generate a password for a desired product. You can also get the initial hash from a statdard key and pass...">
-  <meta itemprop="image" content="https://wu-yijun.github.io/Mathematica-Keygen-Mechanism/Mathematica14.png">
-
-  <link href="favicon.ico" rel="shortcut icon">
-  <title>Mathematica Password Generator</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MathPass</title>
+  <meta name="description"
+    content="Generate, verify and analyse Wolfram mathpass licence passwords, and extract the accepted-CRC table from a shipped DLL. Local-only, no upload.">
+  <link rel="icon" href="./favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="./logo.svg">
   <link rel="stylesheet" href="./index.css">
-  <script src="./renotify.js"></script>
 </head>
 
 <body>
-  <script src="./main@v14.1.0.js"></script>
-  <!-- <script>
-    const maptpass = new MathPass('6205-86227-45728', '14.1.0');
-    maptpass.set_activation_key('6038-4883-ABCDEF');
-    maptpass.generate_password('800001', '20280101');
-    maptpass.check_password();
-    console.log(maptpass);
-    console.log(maptpass.search_hasher());
-  </script> -->
-  <!-- <script type="module">
-    import MathPass from "./main@v14.1.0.js";
-    const maptpass = new MathPass('6205-86227-45728', '14.1.0');
-    maptpass.set_activation_key('6038-4883-ABCDEF');
-    maptpass.generate_password('800001', '20280101');
-    maptpass.check_password();
-    console.log(maptpass);
-  </script> -->
-  <div id="app">
-    <h1 class="flex"><span><img src="Mathematica14.png" style="height: 3em;"/></span>MathPass</h1>
-    <div id="UserAgreement">
-      <p>MathPass is a password manager that uses mathid to generate and check passwords.</p>
-      <p>It is a simple and secure way to manage your passwords. (smile)</p>
-      <p>MathPass is a free and open-source software.</p>
-      <p>By using it, you agree to use it in accordance with the applicable laws and regulations.<br>
-        The author of MathPass is not responsible for any damages caused by the use of MathPass.<br>
-        You also agree to use it at your own risk.</p>
-      <div class="flex">
-        <div class="button" id="i-agree-1" onclick="hideUserAgreement(1)">I'm poor student, but I agree</div>
-        <div class="button" id="i-agree-2" onclick="hideUserAgreement(2)">I Agree</div>
-        <div class="button" id="i-agree-3" onclick="hideUserAgreement(3)">I can't agree more</div>
-      </div>
-    </div>
-    <div class="seperator" id="UserAgreementSep"></div>
-    <div class="usertip" id="UserAgreementTip" onclick="hideUserAgreement(0)">
-      Oh no, you have not agreed the user agreement,
-      but I know that you've heard of thouasnds of 'By using it...'
-      <span class="bold italic">Anyhow, Hide it</span>
-    </div>
-    <div class="content">
-      <div id="version-selector" class="flex">
-        <span class="necessary" title="Version of Mathematica. Used to control key and passwaor format.">Mathematica
-          Version</span>
-        <div class="selector textarea" id="version">
-          <div id="gt14">
-            <span class="box">14.1.0</span>
-            or
-            <span class="box">15.x.x</span>
-            or
-            <span class="box">&gt;14.1</span>
-          </div>
-          <div id="le14">
-            <span class="box">12.x.x</span>
-            or
-            <span class="box">13.x.x</span>
-            or
-            <span class="box">&le;14.0</span>
-          </div>
-          <div id="others">
-            <span>Other version &nbsp;</span>
-            <span class="textarea" contenteditable="true" id="version-input" default="14.1.0"></span>
-          </div>
-        </div>
-        <div class="button hide">copy</div>
-        <div class="button hide">paste</div>
-      </div>
-      <div class="flex">
-        <span class="necessary" title="Necessary. You can find your math id at first Start up.">Math id</span>
-        <div class="textarea" contenteditable="true" id="math-id" default="1234-56789-12345"></div>
-        <div class="button" onclick="copy('math-id')">copy</div>
-        <div class="button" onclick="paste('math-id')">paste</div>
-      </div>
-      <div class="flex">
-        <span title="The Product key which can be generated randomly When leaving blank">Activation Key</span>
-        <div class="textarea" contenteditable="true" id="math-key" default="1234-5678-ABCXYZ"></div>
-        <div class="button" onclick="copy('math-key')">copy</div>
-        <div class="button" onclick="paste('math-key')">paste</div>
-      </div>
-      <div class="flex">
-        <span title="Password generated from math id and activation key">Password</span>
-        <div class="textarea" contenteditable="true" id="math-pass" default="1234-567-890::800001:20250809"></div>
-        <div class="button" onclick="copy('math-pass')">copy</div>
-        <div class="button" onclick="paste('math-pass')">paste</div>
-      </div>
-    </div>
-    <div class="flex">
-      <div class="button" onclick="generatePassword()" id="gen_key">Generate Activation Key And Password !</div>
-      <div class="button" onclick="clearActivationKey('math-key')">Clear Activation Key</div>
-    </div>
-    <div id="advanced" class="card">
-      <div id="caculator-header" class="card-header card-hide">Advanced</div>
-      <div class="content">
-        <div class="flex">
-          <span title="Controls the type and version of Worfram Products">Math Num</span>
-          <div class="textarea" contenteditable="true" id="math-num" default="800001"></div>
-          <div class="button" onclick="copy('math-num')">copy</div>
-          <div class="button" onclick="paste('math-num')">paste</div>
-        </div>
-        <div class="flex">
-          <span title="The last day when the password is valid">Expire Date</span>
-          <div class="textarea" contenteditable="true" id="math-date" default="20250809"></div>
-          <div class="button" onclick="copy('math-date')">copy</div>
-          <div class="button" onclick="paste('math-date')">paste</div>
-        </div>
-        <div class="flex">
-          <span
-            title="The initial hash value used to check validation of password. Be carefal that acceptiable hashes are few.">Initial
-            Hash</span>
-          <div class="textarea" contenteditable="true" id="math-hash" default="59222"></div>
-          <div class="button" onclick="copy('math-hash')">copy</div>
-          <div class="button" onclick="paste('math-hash')">paste</div>
-        </div>
-        <div class="flex">
-          <div class="button" onclick="crackInitialHash()">&nbsp;Crack Initial Hashes from Math id, Activation Key, and
-            Password ! &nbsp;</div>
-        </div>
-        <div id="result" class="textarea" contenteditable="true"></div>
-      </div>
-    </div>
+  <header class="topbar">
+    <a class="brand" href="./">
+      <img class="brand__mark" src="./logo.svg" alt="">
+      <span class="brand__name">MathPass</span>
+    </a>
+    <nav class="topbar__nav">
+      <a class="link" data-i18n="nav.report" data-href="report/README.md" href="#">Report</a>
+      <a class="link" data-i18n="nav.disclaimer" data-href="DISCLAIMER.md" href="#">Disclaimer</a>
+      <button type="button" id="lang-toggle" class="chip" title="中文 / English">中 / EN</button>
+      <button type="button" id="mode-toggle" class="chip chip--accent">
+        <span id="mode-toggle-text">Advanced</span>
+      </button>
+    </nav>
+  </header>
 
+  <div id="agree" class="agree" role="note">
+    <p class="agree__lead" data-i18n="agree.lead"></p>
+    <p class="agree__body" data-i18n="agree.body"></p>
+    <div class="agree__actions">
+      <button type="button" class="btn btn--ghost" data-agree="1" data-i18n="agree.b1"></button>
+      <button type="button" class="btn btn--ghost" data-agree="2" data-i18n="agree.b2"></button>
+      <button type="button" class="btn btn--ghost" data-agree="3" data-i18n="agree.b3"></button>
+    </div>
+    <button type="button" class="agree__hide" id="agree-hide" data-i18n="agree.hide"></button>
   </div>
-  <div class="footer"></div>
-  <script src="./index.js"></script>
+
+  <main id="workbench" class="wb wb--basic">
+    <section class="wb__col wb__col--main">
+
+      <!-- version -->
+      <div class="card" data-field="version">
+        <div class="card__head">
+          <h2 class="card__title">
+            <span data-i18n="version.label"></span>
+            <button type="button" class="hint" data-tip="tip.version" data-doc="03-verification-flow.md"
+              aria-label="?">?</button>
+          </h2>
+        </div>
+        <div class="segmented" id="version-seg" role="radiogroup">
+          <button type="button" class="seg" data-version="le14" role="radio" aria-checked="false">
+            <span data-i18n="version.le14"></span>
+          </button>
+          <button type="button" class="seg" data-version="ge141" role="radio" aria-checked="true">
+            <span data-i18n="version.ge141"></span>
+          </button>
+        </div>
+        <p class="note" id="version-note"></p>
+      </div>
+
+      <!-- math id -->
+      <div class="card" data-field="mathid">
+        <div class="card__head">
+          <h2 class="card__title">
+            <span data-i18n="mathid.label"></span>
+            <span class="req" data-i18n="common.required" title="required"></span>
+            <button type="button" class="hint" data-tip="tip.mathid" data-doc="03-verification-flow.md"
+              aria-label="?">?</button>
+          </h2>
+        </div>
+        <div class="row">
+          <input id="mathid" class="input mono" type="text" spellcheck="false" autocomplete="off"
+            placeholder="1234-56789-12345">
+          <button type="button" class="btn btn--icon" id="mathid-sample" data-i18n="btn.sample"></button>
+          <button type="button" class="btn btn--icon" id="mathid-paste" data-i18n="btn.paste"></button>
+        </div>
+        <div class="row row--actions">
+          <button type="button" class="btn btn--primary" id="btn-generate-basic" data-i18n="actions.generate"></button>
+          <button type="button" class="btn btn--accent" id="btn-advanced-basic">
+            <span data-i18n="nav.mode.toAdvanced"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- basic result -->
+      <div class="card basic-only" data-field="basicresult">
+        <div class="card__head">
+          <h2 class="card__title">
+            <span data-i18n="basic.result.title"></span>
+            <button type="button" class="hint" data-tip="tip.password" data-doc="03-verification-flow.md"
+              aria-label="?">?</button>
+          </h2>
+        </div>
+        <input id="basic-password" class="input mono" type="text" spellcheck="false" autocomplete="off"
+          placeholder="1234-567-890::800001:20300101">
+        <div class="row row--actions">
+          <span id="basic-verdict" class="badge badge--idle" data-i18n="common.idle"></span>
+          <button type="button" class="btn btn--icon" id="basic-copy" data-i18n="btn.copy"></button>
+          <button type="button" class="btn btn--icon" id="basic-verify" data-i18n="actions.verify"></button>
+        </div>
+      </div>
+
+      <!-- activation key -->
+      <div class="card adv-only" data-field="actkey">
+        <div class="card__head">
+          <h2 class="card__title">
+            <span data-i18n="actkey.label"></span>
+            <button type="button" class="hint" data-tip="tip.actkey" data-doc="03-verification-flow.md"
+              aria-label="?">?</button>
+          </h2>
+        </div>
+        <div class="row">
+          <input id="actkey" class="input mono" type="text" spellcheck="false" autocomplete="off"
+            placeholder="1234-5678-ABCDEF">
+          <button type="button" class="btn btn--icon" id="actkey-random" data-i18n="btn.random"></button>
+          <button type="button" class="btn btn--icon" id="actkey-paste" data-i18n="btn.paste"></button>
+        </div>
+        <p class="note" id="actkey-note"></p>
+      </div>
+
+      <!-- license code -->
+      <div class="card adv-only" data-field="licensecode">
+        <div class="card__head">
+          <h2 class="card__title">
+            <span data-i18n="lc.label"></span>
+            <button type="button" class="hint" data-tip="tip.licensecode" data-doc="04-license-code.md"
+              aria-label="?">?</button>
+          </h2>
+        </div>
+        <div class="row">
+          <input id="licensecode" class="input mono" type="text" spellcheck="false" autocomplete="off"
+            placeholder="800001">
+          <button type="button" class="btn btn--icon" id="lc-copy" data-i18n="btn.copy"></button>
+        </div>
+        <div id="lc-editor" class="lc-editor">
+          <div class="lc-group">
+            <span class="lc-group__legend" data-i18n="lc.product"></span>
+            <div class="bits" id="lc-product"></div>
+          </div>
+          <div class="lc-group">
+            <span class="lc-group__legend" data-i18n="lc.class"></span>
+            <div class="bits" id="lc-class"></div>
+          </div>
+          <div class="lc-group">
+            <span class="lc-group__legend" data-i18n="lc.caps"></span>
+            <div class="bits" id="lc-caps"></div>
+          </div>
+          <div class="lc-group lc-group--inline">
+            <span class="lc-group__legend" data-i18n="lc.misc"></span>
+            <div class="bits" id="lc-misc"></div>
+          </div>
+        </div>
+        <p class="note" id="lc-summary"></p>
+        <p class="note note--warn" id="lc-note-le14" hidden data-i18n="lc.note.le14"></p>
+      </div>
+
+      <!-- expiry -->
+      <div class="card adv-only" data-field="expiry">
+        <div class="card__head">
+          <h2 class="card__title">
+            <span data-i18n="expiry.label"></span>
+            <button type="button" class="hint" data-tip="tip.expiry" data-doc="03-verification-flow.md"
+              aria-label="?">?</button>
+          </h2>
+        </div>
+        <div class="row">
+          <input id="expiry-text" class="input mono" type="text" inputmode="numeric" spellcheck="false"
+            autocomplete="off" placeholder="YYYYMMDD" maxlength="8">
+          <input id="expiry-date" class="input" type="date">
+        </div>
+        <div class="row row--wrap" id="expiry-quick">
+          <button type="button" class="btn btn--icon" data-expiry-add="1m" data-i18n="expiry.add1m"></button>
+          <button type="button" class="btn btn--icon" data-expiry-add="1y" data-i18n="expiry.add1y"></button>
+          <button type="button" class="btn btn--icon" data-expiry-add="2y" data-i18n="expiry.add2y"></button>
+        </div>
+        <p class="note" id="expiry-note"></p>
+      </div>
+
+      <!-- accepted crc -->
+      <div class="card adv-only" data-field="acceptedcrc">
+        <div class="card__head">
+          <h2 class="card__title">
+            <span data-i18n="crc.label"></span>
+            <button type="button" class="hint" data-tip="tip.crc" data-doc="05-accepted-crc.md" aria-label="?">?</button>
+          </h2>
+        </div>
+        <div class="row">
+          <input id="acceptedcrc" class="input mono" type="text" inputmode="numeric" spellcheck="false"
+            autocomplete="off">
+          <select id="acceptedcrc-list" class="input mono"></select>
+        </div>
+        <p class="note" id="crc-note"></p>
+      </div>
+
+      <!-- actions -->
+      <div class="card adv-only" data-field="actions">
+        <div class="row row--actions">
+          <button type="button" class="btn btn--primary" id="btn-generate" data-i18n="actions.generate"></button>
+          <span class="btn-wrap">
+            <button type="button" class="btn" id="btn-verify" data-i18n="actions.verify"></button>
+            <button type="button" class="hint" data-tip="tip.verify" data-doc="03-verification-flow.md"
+              aria-label="?">?</button>
+          </span>
+          <span class="btn-wrap">
+            <button type="button" class="btn" id="btn-extract" data-i18n="actions.extract"></button>
+            <button type="button" class="hint" data-tip="tip.extract" data-doc="05-accepted-crc.md"
+              aria-label="?">?</button>
+          </span>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="wb__col wb__col--side">
+      <div class="wb__inner">
+
+        <!-- result -->
+        <div class="card adv-only" data-field="result">
+          <div class="card__head">
+            <h2 class="card__title">
+              <span data-i18n="result.title"></span>
+              <span id="result-badge" class="badge badge--idle" data-i18n="common.idle"></span>
+            </h2>
+          </div>
+          <input id="result-password" class="input mono" type="text" spellcheck="false" autocomplete="off"
+            aria-live="polite" placeholder="1234-567-890::800001:20300101">
+          <div class="row row--actions">
+            <button type="button" class="btn btn--icon" id="result-copy" data-i18n="btn.copy"></button>
+          </div>
+          <dl class="kv" id="result-kv"></dl>
+        </div>
+
+        <!-- accepted-crc table -->
+        <div class="card adv-only" data-field="table">
+          <div class="card__head">
+            <h2 class="card__title">
+              <span data-i18n="table.title"></span>
+              <button type="button" class="hint" data-tip="tip.table" data-doc="05-accepted-crc.md"
+                aria-label="?">?</button>
+            </h2>
+          </div>
+          <p class="note" data-i18n="table.intro"></p>
+          <div class="row row--wrap">
+            <input id="dll-file" class="input" type="file" accept=".dll,.exe,.sys,application/octet-stream">
+            <button type="button" class="btn" id="table-builtin" data-i18n="table.builtin"></button>
+          </div>
+          <p class="note" id="table-status"></p>
+          <div id="table-candidates" class="candidates"></div>
+          <details class="details">
+            <summary data-i18n="table.manual.summary"></summary>
+            <div class="row">
+              <textarea id="table-manual" class="input mono" rows="3" spellcheck="false"
+                placeholder="35944, 59222, 46288, …"></textarea>
+            </div>
+            <div class="row row--actions">
+              <button type="button" class="btn" id="table-use-manual" data-i18n="table.manual.use"></button>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span data-i18n="footer.text"></span>
+    <a class="link" id="footer-disclaimer" href="#" data-i18n="nav.disclaimer"></a>
+  </footer>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script type="module" src="./index.js"></script>
 </body>
 
 </html>

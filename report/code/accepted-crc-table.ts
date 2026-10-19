@@ -58,10 +58,10 @@ export function findCodeRefs(buf: Buffer, sections: Section[], targetVA: number)
     const end = s.roff + Math.min(s.rsize, s.vsize);
     for (let p = start; p + 7 <= end; p++) {
       const b0 = buf[p], b1 = buf[p + 1], m = buf[p + 2];
-      let dispOff = -1, len = 7;
+      let dispOff = -1;
       if ((b0 === 0x48 || b0 === 0x4c) && (b1 === 0x8d || b1 === 0x8b) && (m & 0xc7) === 0x05) dispOff = p + 3;
       else if (b0 === 0x44 && b1 === 0x8b && (m & 0xc7) === 0x05) dispOff = p + 3;
-      else if (b1 === 0x8d && (m & 0xc7) === 0x05 && (b0 & 0xf8) === 0x40) { dispOff = p + 2; len = 6; }
+      else if (b1 === 0x8d && (m & 0xc7) === 0x05 && (b0 & 0xf8) === 0x40) dispOff = p + 2;
       if (dispOff < 0) continue;
       const disp = buf.readInt32LE(dispOff);
       const ip = s.va + (dispOff + 4 - s.roff);

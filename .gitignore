@@ -4,3 +4,7 @@ crack/
 # tooling / local files
 node_modules/
 *.pwfile
+
+# build output (produced by `pnpm build`, published from dist/)
+dist/
+/index.js

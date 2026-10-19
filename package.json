@@ -1,0 +1,18 @@
+{
+  "name": "mathematica-keygen-mechanism",
+  "private": true,
+  "type": "module",
+  "description": "Wolfram mathpass licence-password tool: generate, verify, extract the accepted CRC, and read the accepted-CRC table out of a shipped DLL.",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "preview": "node scripts/serve.mjs dist 8137",
+    "typecheck": "tsc --noEmit",
+    "test": "node report/code/selfcheck.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsdown": "^0.23.1",
+    "typescript": "^5.9.0"
+  }
+}
