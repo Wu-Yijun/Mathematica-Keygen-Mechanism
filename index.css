@@ -170,8 +170,9 @@ body {
 }
 
 .wb--advanced .basic-only { display: none; }
-/* the sample / paste helpers next to the Math ID are Basic-mode affordances */
-.wb--advanced .btn--basiconly { display: none; }
+/* in Advanced the Math ID card keeps only the field: generate lives on the right and
+   the mode toggle lives in the top bar */
+.wb--advanced .basic-action { display: none; }
 
 @media (max-width: 900px) {
   .wb--advanced { grid-template-columns: minmax(0, 1fr); }
