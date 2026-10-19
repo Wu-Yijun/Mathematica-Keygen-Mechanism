@@ -1,0 +1,9 @@
+{
+  "name": "mathpass-report-code",
+  "private": true,
+  "type": "module",
+  "description": "TypeScript implementations accompanying the Wolfram mathpass reverse-engineering report.",
+  "scripts": {
+    "test": "node code/selfcheck.ts"
+  }
+}

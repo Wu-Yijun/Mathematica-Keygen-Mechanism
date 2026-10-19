@@ -1,2 +1,6 @@
 temp/
 crack/
+
+# tooling / local files
+node_modules/
+*.pwfile
