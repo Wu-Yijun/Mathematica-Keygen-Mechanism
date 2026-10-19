@@ -20,25 +20,44 @@ byte-for-byte** (that licence is not published here - see [09](09-validation.md)
 
 ## The scheme in one picture
 
-```
-mathpass entry (TAB separated):  name   mathID   activationKey   password
-                                  │        │           │
-                                  │        │           └──────────────┐
-        password = signature "::" LicenseCode ":" expiryDate          │
-                     │                │                               │
-   MESSAGE = mathID "@" expiryDate "$" LicenseCode "&" activationKey ◄─┘
+```mermaid
+flowchart TB
+  entry["mathpass entry (TAB separated)<br/>name · mathID · activationKey · password"]
 
-   ── verification (offline, in WolframEngine.dll) ─────────────────────────────
-   signature ─► (n0, n2) ─┬─ A:  CRC16(poly 0x1064B, init 0xA5B6, n2 ‖ MESSAGE ‖ ω(n0)) == 0
-                          └─ B:  CRC16(poly 0x105C3, init 0xA5B6, n0 ‖ MESSAGE) ∈ ACCEPTED_CRC_TABLE
+  subgraph kernel["offline verification — WolframEngine.dll"]
+    direction TB
+    sig["signature → n1, n2<br/>n0 = (n1 + 0x8D06) mod 2¹⁶"]
+    msg["MESSAGE = mathID @ expiryDate $ LicenseCode &amp; activationKey"]
+    ca["A · integrity<br/>CRC16(0x1064B, init 0xA5B6, n2 ‖ MESSAGE ‖ ω(n0)) == 0"]
+    cb["B · authenticity<br/>CRC16(0x105C3, init 0xA5B6, n0 ‖ MESSAGE) ∈ accepted-CRC table"]
+    ok(["accepted"])
+    bad(["Bad password."])
+  end
 
-   ── beyond verification (front end WolframNB.exe) ───────────────────────────
-   LicenseCode (hex bitmask) ─► product bit  ─► ProductIDName ─► product shell paclet
-                             ├─ class bit    ─► $LicenseType / licence UI bar
-                             └─ feature bit  ─► capabilities
+  entry -->|"password → signature, LicenseCode, expiryDate"| sig
+  entry -->|"mathID, activationKey"| msg
+  sig --> ca
+  msg --> ca
+  msg --> cb
+  ca -->|yes| cb
+  cb -->|yes| ok
+  ca -->|no| bad
+  cb -->|no| bad
 
-   ── generation (server side) ────────────────────────────────────────────────
-   choose acceptedCrc ∈ ACCEPTED_CRC_TABLE ;  solve n0, n2 by CRC inversion (GF(2) linear solve) ;  format
+  subgraph front["beyond verification — front end WolframNB.exe"]
+    direction TB
+    lc["LicenseCode (hex bitmask)"]
+    prod["product bit → ProductIDName → product shell paclet"]
+    cls["class bit → $LicenseType / licence UI bar"]
+    caps["feature bit → capabilities"]
+    lc --> prod
+    lc --> cls
+    lc --> caps
+  end
+  entry -.->|"LicenseCode"| lc
+
+  gen["server side — pick an accepted CRC, invert the CRC over GF(2) for n0 / n2, then format"]
+  gen -.->|"issues the password"| entry
 ```
 
 ## Component map (where everything lives)

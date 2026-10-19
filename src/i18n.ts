@@ -143,8 +143,8 @@ export const STRINGS: Record<string, Text> = {
 
   "table.title": { zh: "Accepted-CRC 表", en: "Accepted-CRC table" },
   "table.intro": {
-    zh: "选择本机的 WolframEngine.dll（或任何内嵌该校验器的模块）。文件只在本地解析，不上传。",
-    en: "Pick your local WolframEngine.dll (or any module embedding the same validator). The file is parsed locally and never uploaded.",
+    zh: "选择本机的 <WolframInstallDir>/SystemFiles/Libraries/Windows-x86-64/WolframEngine.dll（或任何内嵌该校验器的模块）。文件只在本地解析，不上传。",
+    en: "Pick your local <WolframInstallDir>/SystemFiles/Libraries/Windows-x86-64/WolframEngine.dll (or any module embedding the same validator). The file is parsed locally and never uploaded.",
   },
   "table.builtin": { zh: "载入内置 v15.0.1 表", en: "Load built-in v15.0.1 table" },
   "table.manual.summary": { zh: "手动填写 / 粘贴", en: "Type or paste" },

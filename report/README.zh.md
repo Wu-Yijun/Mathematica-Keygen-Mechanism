@@ -12,25 +12,44 @@
 
 ## 一图看懂该方案
 
-```
-mathpass entry (TAB separated):  name   mathID   activationKey   password
-                                  │        │           │
-                                  │        │           └──────────────┐
-        password = signature "::" LicenseCode ":" expiryDate          │
-                     │                │                               │
-   MESSAGE = mathID "@" expiryDate "$" LicenseCode "&" activationKey ◄─┘
+```mermaid
+flowchart TB
+  entry["mathpass 条目（TAB 分隔）<br/>name · mathID · 激活密钥 · password"]
 
-   ── verification (offline, in WolframEngine.dll) ─────────────────────────────
-   signature ─► (n0, n2) ─┬─ A:  CRC16(poly 0x1064B, init 0xA5B6, n2 ‖ MESSAGE ‖ ω(n0)) == 0
-                          └─ B:  CRC16(poly 0x105C3, init 0xA5B6, n0 ‖ MESSAGE) ∈ ACCEPTED_CRC_TABLE
+  subgraph kernel["离线校验 —— WolframEngine.dll"]
+    direction TB
+    sig["signature → n1, n2<br/>n0 = (n1 + 0x8D06) mod 2¹⁶"]
+    msg["MESSAGE = mathID @ expiryDate $ LicenseCode &amp; activationKey"]
+    ca["A · 完整性<br/>CRC16(0x1064B, init 0xA5B6, n2 ‖ MESSAGE ‖ ω(n0)) == 0"]
+    cb["B · 真实性<br/>CRC16(0x105C3, init 0xA5B6, n0 ‖ MESSAGE) ∈ Accepted-CRC 表"]
+    ok(["接受"])
+    bad(["Bad password."])
+  end
 
-   ── beyond verification (front end WolframNB.exe) ───────────────────────────
-   LicenseCode (hex bitmask) ─► product bit  ─► ProductIDName ─► product shell paclet
-                             ├─ class bit    ─► $LicenseType / licence UI bar
-                             └─ feature bit  ─► capabilities
+  entry -->|"password → signature、LicenseCode、到期日"| sig
+  entry -->|"mathID、激活密钥"| msg
+  sig --> ca
+  msg --> ca
+  msg --> cb
+  ca -->|是| cb
+  cb -->|是| ok
+  ca -->|否| bad
+  cb -->|否| bad
 
-   ── generation (server side) ────────────────────────────────────────────────
-   choose acceptedCrc ∈ ACCEPTED_CRC_TABLE ;  solve n0, n2 by CRC inversion (GF(2) linear solve) ;  format
+  subgraph front["校验之后 —— 前端 WolframNB.exe"]
+    direction TB
+    lc["LicenseCode（十六进制位掩码）"]
+    prod["产品位 → ProductIDName → 产品 shell paclet"]
+    cls["类别位 → $LicenseType / 许可类型栏"]
+    caps["特性位 → capabilities"]
+    lc --> prod
+    lc --> cls
+    lc --> caps
+  end
+  entry -.->|"LicenseCode"| lc
+
+  gen["服务端 —— 选一个 Accepted CRC，在 GF(2) 上反解 CRC 得到 n0 / n2，再拼成密码"]
+  gen -.->|"签发密码"| entry
 ```
 
 ## 组件地图（一切所在之处）
