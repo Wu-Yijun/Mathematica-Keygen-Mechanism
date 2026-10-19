@@ -25,8 +25,14 @@
   --radius: 12px;
   --radius-sm: 8px;
   --gap: 14px;
+  /* every column is capped at this width; the page chrome follows the current mode */
+  --col-max: 620px;
+  --page-max: calc(var(--col-max) * 2 + var(--gap));
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
+
+/* Basic has a single column, so the chrome narrows with it */
+body:has(.wb--basic) { --page-max: var(--col-max); }
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -71,7 +77,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: var(--gap);
-  padding: 0.6rem clamp(0.8rem, 3vw, 2rem);
+  padding: 0.6rem max(0.8rem, calc((100% - var(--page-max)) / 2));
   background: color-mix(in srgb, var(--bg-soft) 88%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
@@ -101,12 +107,14 @@ body {
 /* ------------------------------------------------------------- agreement */
 
 .agree {
-  margin: var(--gap) clamp(0.8rem, 3vw, 2rem) 0;
+  width: min(100% - 1.6rem, var(--page-max));
+  margin: var(--gap) auto 0;
   padding: 1rem 1.1rem;
   background: var(--bg-soft);
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
+  transition: width .5s cubic-bezier(.4, 0, .2, 1);
 }
 .agree p { margin: 0 0 0.5rem; color: var(--fg-muted); font-size: 0.9rem; }
 .agree__lead { color: var(--fg) !important; font-size: 0.95rem !important; font-weight: 600; }
@@ -117,13 +125,14 @@ body {
 
 .wb {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0fr);
+  grid-template-columns: minmax(0, var(--col-max)) minmax(0, 0fr);
+  justify-content: center;
   gap: 0;
   align-items: start;
   margin: var(--gap) clamp(0.8rem, 3vw, 2rem) 0;
   transition: grid-template-columns .5s cubic-bezier(.4, 0, .2, 1);
 }
-.wb--advanced { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gap); }
+.wb--advanced { grid-template-columns: minmax(0, var(--col-max)) minmax(0, var(--col-max)); gap: var(--gap); }
 
 .wb__col { display: flex; flex-direction: column; min-width: 0; }
 .wb__col > * + * { margin-top: var(--gap); }
@@ -157,8 +166,9 @@ body {
 .wb--advanced .basic-only { display: none; }
 
 @media (max-width: 900px) {
-  .wb--advanced { grid-template-columns: minmax(0, 1fr); }
+  .wb--advanced { grid-template-columns: minmax(0, var(--col-max)); }
   .wb__inner { min-width: 0; }
+  body:has(.wb--advanced) { --page-max: var(--col-max); }
 }
 
 /* ------------------------------------------------------------------ cards */
@@ -331,7 +341,8 @@ textarea.input { resize: vertical; }
 /* ------------------------------------------------------------------ misc */
 
 .footer {
-  margin: var(--gap) clamp(0.8rem, 3vw, 2rem) 0;
+  width: min(100% - 1.6rem, var(--page-max));
+  margin: var(--gap) auto 0;
   padding-top: 0.8rem;
   border-top: 1px solid var(--line);
   font-size: 0.8rem;
@@ -339,6 +350,7 @@ textarea.input { resize: vertical; }
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  transition: width .5s cubic-bezier(.4, 0, .2, 1);
 }
 
 .toasts { position: fixed; right: 1rem; bottom: 1rem; display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; z-index: 80; }
