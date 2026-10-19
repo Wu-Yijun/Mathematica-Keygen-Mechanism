@@ -75,6 +75,7 @@ function currentMessage(): string {
 }
 
 function setVersion(version: VersionMode): void {
+  markStale();
   state.version = version;
   const dflt = defaultTableFor(version);
   if (state.tableSource === "builtin" || state.tableSource === "v14") {
@@ -110,6 +111,7 @@ function bitChip(option: BitOption, kind: "exclusive" | "toggle", group?: BitOpt
       const on = ((parseInt(state.licenseCode || "0", 16) >>> option.bit) & 1) === 1;
       state.licenseCode = withBit(state.licenseCode, option.bit, !on);
     }
+    markStale();
     persist();
     renderLicenseCode();
   });
@@ -124,6 +126,7 @@ function noneChip(group: BitOption[]): HTMLButtonElement {
   btn.textContent = t(group === PRODUCT_BITS ? "lc.product.none" : "lc.class.none");
   btn.addEventListener("click", () => {
     state.licenseCode = withExclusiveBit(state.licenseCode, group, null);
+    markStale();
     persist();
     renderLicenseCode();
   });
@@ -194,6 +197,13 @@ function renderCrcField(): void {
 /* ------------------------------------------------------------------ *
  * results
  * ------------------------------------------------------------------ */
+
+/** Any edit to the inputs invalidates the analysis shown next to the password. */
+function markStale(): void {
+  lastAnalysis = null;
+  setVerdict("idle");
+  clearKv();
+}
 
 function setPasswordState(kind: "idle" | "valid" | "invalid"): void {
   const el = $("result-password");
@@ -346,6 +356,7 @@ function extractCrc(): void {
  * ------------------------------------------------------------------ */
 
 function useTable(table: number[], source: State["tableSource"]): void {
+  markStale();
   state.table = table;
   state.tableSource = source;
   if (!table.includes(state.acceptedCrc)) {
@@ -551,22 +562,26 @@ function wire(): void {
   // identity
   $<HTMLInputElement>("mathid").addEventListener("input", (e) => {
     state.mathID = (e.target as HTMLInputElement).value.trim();
+    markStale();
     persist();
   });
   $("mathid-sample").addEventListener("click", () => {
     state.mathID = randomMathID();
     renderInputs();
+    markStale();
     persist();
   });
   $("mathid-paste").addEventListener("click", () => void pasteInto($<HTMLInputElement>("mathid")));
 
   $<HTMLInputElement>("actkey").addEventListener("input", (e) => {
     state.activationKey = (e.target as HTMLInputElement).value.trim();
+    markStale();
     persist();
   });
   $("actkey-random").addEventListener("click", () => {
     state.activationKey = randomActivationKey(state.version);
     renderInputs();
+    markStale();
     persist();
   });
   $("actkey-paste").addEventListener("click", () => void pasteInto($<HTMLInputElement>("actkey")));
@@ -577,6 +592,7 @@ function wire(): void {
     if (/^[0-9A-Fa-f]{1,8}$/.test(lc.value)) {
       state.licenseCode = lc.value.toUpperCase();
       lc.classList.remove("input--bad");
+      markStale();
       persist();
       renderLicenseCode();
     } else {
@@ -599,6 +615,7 @@ function wire(): void {
     if (v.length === 8 && fromYYYYMMDD(v)) {
       state.expiry = v;
       renderInputs();
+      markStale();
       persist();
     }
   });
@@ -607,6 +624,7 @@ function wire(): void {
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
       state.expiry = v.replace(/-/g, "");
       renderInputs();
+      markStale();
       persist();
     }
   });
@@ -615,6 +633,7 @@ function wire(): void {
       const base = fromYYYYMMDD(state.expiry) ?? new Date();
       state.expiry = toYYYYMMDD(addToDate(base, b.dataset.expiryAdd!));
       renderInputs();
+      markStale();
       persist();
     });
   }
@@ -625,12 +644,14 @@ function wire(): void {
     const v = Number(crc.value.replace(/\D/g, ""));
     if (Number.isInteger(v) && v > 0 && v <= 0xffff) {
       state.acceptedCrc = v;
+      markStale();
       persist();
       renderCrcField();
     }
   });
   $<HTMLSelectElement>("acceptedcrc-list").addEventListener("change", (e) => {
     state.acceptedCrc = Number((e.target as HTMLSelectElement).value);
+    markStale();
     persist();
     renderCrcField();
   });
@@ -645,10 +666,7 @@ function wire(): void {
   $("basic-copy").addEventListener("click", () => void copyText(state.password));
 
   // editing the password invalidates the verdict shown next to it
-  $<HTMLInputElement>("result-password").addEventListener("input", () => {
-    lastAnalysis = null;
-    setVerdict("idle");
-  });
+  $<HTMLInputElement>("result-password").addEventListener("input", markStale);
 
   // table panel
   $<HTMLInputElement>("dll-file").addEventListener("change", (e) => {

@@ -82,6 +82,7 @@ body {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
   flex-wrap: wrap;
+  transition: padding-inline .5s cubic-bezier(.4, 0, .2, 1);
 }
 
 .brand { display: flex; align-items: center; gap: 0.5rem; color: inherit; text-decoration: none; }
@@ -125,14 +126,19 @@ body {
 
 .wb {
   display: grid;
-  grid-template-columns: minmax(0, var(--col-max)) minmax(0, 0fr);
-  justify-content: center;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0fr);
   gap: 0;
   align-items: start;
-  margin: var(--gap) clamp(0.8rem, 3vw, 2rem) 0;
-  transition: grid-template-columns .5s cubic-bezier(.4, 0, .2, 1);
+  width: min(100% - 1.6rem, calc(var(--col-max) * 2 + var(--gap)));
+  margin: var(--gap) auto 0;
+  transition:
+    width .5s cubic-bezier(.4, 0, .2, 1),
+    grid-template-columns .5s cubic-bezier(.4, 0, .2, 1),
+    gap .5s cubic-bezier(.4, 0, .2, 1);
 }
-.wb--advanced { grid-template-columns: minmax(0, var(--col-max)) minmax(0, var(--col-max)); gap: var(--gap); }
+/* Basic narrows the whole grid to one column, so the centred column slides instead of jumping */
+.wb--basic { width: min(100% - 1.6rem, var(--col-max)); }
+.wb--advanced { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gap); }
 
 .wb__col { display: flex; flex-direction: column; min-width: 0; }
 .wb__col > * + * { margin-top: var(--gap); }
@@ -168,7 +174,7 @@ body {
 .wb--advanced .btn--basiconly { display: none; }
 
 @media (max-width: 900px) {
-  .wb--advanced { grid-template-columns: minmax(0, var(--col-max)); }
+  .wb--advanced { grid-template-columns: minmax(0, 1fr); }
   .wb__inner { min-width: 0; }
   body:has(.wb--advanced) { --page-max: var(--col-max); }
 }
