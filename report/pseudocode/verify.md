@@ -1,3 +1,5 @@
+**中文** · [English](verify.zh.md)
+
 # Pseudocode — verification
 
 ## CRC-16 (MSB-first, polynomial includes x¹⁶)

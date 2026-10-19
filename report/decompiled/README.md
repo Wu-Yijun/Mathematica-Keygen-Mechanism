@@ -1,3 +1,5 @@
+**中文** · [English](README.zh.md)
+
 # Decompiled output
 
 These are the **raw Ghidra pseudocode** bodies of the functions that matter most, kept

@@ -1,3 +1,5 @@
+**中文** · [English](08-reconstructed-source.zh.md)
+
 # 08 — Reconstructed Source (renamed variables)
 
 The following C is a faithful reconstruction of the decompiled code, with every

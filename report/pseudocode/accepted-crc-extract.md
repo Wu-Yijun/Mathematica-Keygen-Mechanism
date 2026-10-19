@@ -1,3 +1,5 @@
+**中文** · [English](accepted-crc-extract.zh.md)
+
 # Pseudocode — extracting the accepted-CRC whitelist from a PE
 
 ```

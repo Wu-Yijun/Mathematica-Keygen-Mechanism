@@ -1,3 +1,5 @@
+**中文** · [English](README.zh.md)
+
 # Report code
 
 TypeScript implementations of the reversed `mathpass` scheme. Run with a TypeScript-

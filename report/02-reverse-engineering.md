@@ -1,3 +1,5 @@
+**中文** · [English](02-reverse-engineering.zh.md)
+
 # 02 — Reverse Engineering: Method, Tooling, and Component Map
 
 This chapter is the report's reverse-engineering core. It is organised **by subsystem**

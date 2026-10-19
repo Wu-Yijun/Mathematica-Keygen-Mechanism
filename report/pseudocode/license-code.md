@@ -1,3 +1,5 @@
+**中文** · [English](license-code.zh.md)
+
 # Pseudocode — `LicenseCode` (product / class / feature)
 
 ## The predicate   (mirrors FUN_140da32d0)

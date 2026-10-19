@@ -1,3 +1,5 @@
+**中文** · [English](01-target-and-tooling.zh.md)
+
 # 01 — Target and Tooling
 
 ## 1. Target identity

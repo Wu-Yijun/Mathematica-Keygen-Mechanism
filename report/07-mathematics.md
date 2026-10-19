@@ -1,3 +1,5 @@
+**中文** · [English](07-mathematics.zh.md)
+
 # 07 — The Mathematics
 
 ## 7.1 CRC as arithmetic over GF(2)

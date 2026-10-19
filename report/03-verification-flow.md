@@ -1,3 +1,5 @@
+**中文** · [English](03-verification-flow.zh.md)
+
 # 03 — The Verification Flow
 
 ## 3.1 Inputs

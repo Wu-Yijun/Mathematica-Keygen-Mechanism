@@ -1,3 +1,5 @@
+**中文** · [English](04-license-code.zh.md)
+
 # 04 — `LicenseCode`: product, class, and feature selection
 
 `LicenseCode` is the field historically called **"Math Num"** / `mathNum` — the

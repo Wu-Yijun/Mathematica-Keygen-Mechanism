@@ -1,3 +1,5 @@
+**中文** · [English](05-accepted-crc.zh.md)
+
 # 05 — The Accepted CRCs
 
 ## 5.1 What an accepted CRC actually is

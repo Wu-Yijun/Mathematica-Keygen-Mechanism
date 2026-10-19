@@ -1,3 +1,5 @@
+**中文** · [English](06-key-generation.zh.md)
+
 # 06 — Server-Side Key Generation
 
 ## 6.1 Where generation happens

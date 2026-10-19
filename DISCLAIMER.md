@@ -1,3 +1,5 @@
+**中文** · [English](DISCLAIMER.zh.md)
+
 # Disclaimer
 
 This repository documents the **reverse engineering of the offline licence-password

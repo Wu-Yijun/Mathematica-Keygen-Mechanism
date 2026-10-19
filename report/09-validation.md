@@ -1,3 +1,5 @@
+**中文** · [English](09-validation.zh.md)
+
 # 09 — Validation
 
 Every claim in this report is backed either by decompiled code (see

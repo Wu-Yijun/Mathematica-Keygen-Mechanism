@@ -1,3 +1,5 @@
+**中文** · [English](generate.zh.md)
+
 # Pseudocode — key generation (server side)
 
 ```

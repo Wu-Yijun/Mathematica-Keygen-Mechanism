@@ -27,6 +27,27 @@ setLang(lang);
 let lastAnalysis: Analysis | null = null;
 
 /* ------------------------------------------------------------------ *
+ * links to the written report
+ * ------------------------------------------------------------------ */
+
+/**
+ * The report is bilingual: the English chapter is `NAME.md`, the Chinese translation
+ * is `NAME.zh.md` next to it. Every documentation link follows the page language.
+ */
+function localizedDocPath(path: string): string {
+  return getLang() === "zh" ? path.replace(/\.md$/, ".zh.md") : path;
+}
+
+const repoBlob = (path: string) => `${GITHUB_BASE}/blob/main/${localizedDocPath(path)}`;
+
+function renderDocLinks(): void {
+  for (const el of document.querySelectorAll<HTMLElement>("[data-href]")) {
+    el.setAttribute("href", repoBlob(el.dataset.href!));
+  }
+  $("footer-disclaimer").setAttribute("href", repoBlob("DISCLAIMER.md"));
+}
+
+/* ------------------------------------------------------------------ *
  * small helpers
  * ------------------------------------------------------------------ */
 
@@ -506,6 +527,7 @@ function renderInputs(): void {
 function render(): void {
   document.documentElement.lang = getLang() === "zh" ? "zh-CN" : "en";
   applyI18n(document);
+  renderDocLinks();
   renderMode();
   renderVersion();
   renderInputs();
@@ -517,16 +539,11 @@ function render(): void {
 }
 
 function wire(): void {
-  // links
-  const blob = (path: string) => `${GITHUB_BASE}/blob/main/${path}`;
-  for (const el of document.querySelectorAll<HTMLElement>("[data-href]")) el.setAttribute("href", blob(el.dataset.href!));
-  $("footer-disclaimer").setAttribute("href", blob("DISCLAIMER.md"));
-
   // hints
   for (const el of document.querySelectorAll<HTMLElement>(".hint")) {
     el.addEventListener("click", () => {
       const doc = el.dataset.doc;
-      if (doc) window.open(DOC_BASE + doc, "_blank", "noopener");
+      if (doc) window.open(DOC_BASE + localizedDocPath(doc), "_blank", "noopener");
     });
   }
 
