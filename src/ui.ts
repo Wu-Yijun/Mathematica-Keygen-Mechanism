@@ -308,6 +308,11 @@ function ensureInputs(): boolean {
   return true;
 }
 
+/** The password field the user can actually see: Advanced shows the right column, Basic does not. */
+function passwordField(): HTMLInputElement {
+  return state.mode === "advanced" ? $("result-password") : $("basic-password");
+}
+
 function generate(): void {
   if (!ensureInputs()) return;
   const message = currentMessage();
@@ -325,8 +330,7 @@ function generate(): void {
 
 function verify(): void {
   const mathID = $<HTMLInputElement>("mathid").value.trim();
-  const password = ($("result-password") as HTMLInputElement).value.trim() ||
-    ($("basic-password") as HTMLInputElement).value.trim();
+  const password = passwordField().value.trim();
   if (!isValidMathID(mathID) || !password) { toast(t("toast.needInputs"), "error"); return; }
   state.mathID = mathID;
   const a = analyse(mathID, state.activationKey, password);
@@ -338,8 +342,7 @@ function verify(): void {
 
 function extractCrc(): void {
   const mathID = $<HTMLInputElement>("mathid").value.trim();
-  const password = ($("result-password") as HTMLInputElement).value.trim() ||
-    ($("basic-password") as HTMLInputElement).value.trim();
+  const password = passwordField().value.trim();
   if (!isValidMathID(mathID) || !password) { toast(t("toast.needInputs"), "error"); return; }
   const a = analyse(mathID, state.activationKey, password);
   if (!a) { toast(t("toast.needInputs"), "error"); return; }
@@ -665,8 +668,15 @@ function wire(): void {
   $("result-copy").addEventListener("click", () => void copyText(state.password));
   $("basic-copy").addEventListener("click", () => void copyText(state.password));
 
-  // editing the password invalidates the verdict shown next to it
-  $<HTMLInputElement>("result-password").addEventListener("input", markStale);
+  // editing either password field invalidates the verdict, and keeps the two in step
+  const mirrorPassword = (from: HTMLInputElement, to: HTMLInputElement) => {
+    from.addEventListener("input", () => {
+      to.value = from.value;
+      markStale();
+    });
+  };
+  mirrorPassword($<HTMLInputElement>("basic-password"), $<HTMLInputElement>("result-password"));
+  mirrorPassword($<HTMLInputElement>("result-password"), $<HTMLInputElement>("basic-password"));
 
   // table panel
   $<HTMLInputElement>("dll-file").addEventListener("change", (e) => {
