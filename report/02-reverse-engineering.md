@@ -1,6 +1,6 @@
-**中文** · [English](02-reverse-engineering.zh.md)
-
 # 02 — Reverse Engineering: Method, Tooling, and Component Map
+
+**English** · [中文](02-reverse-engineering.zh.md)
 
 This chapter is the report's reverse-engineering core. It is organised **by subsystem**
 (not by the order the work happened) and covers every part of the licensing scheme:
@@ -206,3 +206,7 @@ license:
 The kernel oracle is a short `wolframscript` run that prints `$LicenseType`, `$ActivationKey`
 and `$ProductInformation` for a licence file; the front-end oracle is a
 `WolframNB.exe -pwfile <file>` launch that never touches the system licence.
+
+---
+
+**← Previous:** [01 — Target and Tooling](01-target-and-tooling.md) · **Next:** [03 — The Verification Flow](03-verification-flow.md)

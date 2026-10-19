@@ -1,6 +1,6 @@
-[English](verify.md) · **中文**
-
 # 伪代码 — 验证
+
+**中文** · [English](verify.md)
 
 ## CRC-16（MSB 优先，多项式含 x¹⁶）
 

@@ -1,6 +1,6 @@
-[English](accepted-crc-extract.md) · **中文**
-
 # 伪代码 — 从 PE 中提取 Accepted-CRC 白名单
+
+**中文** · [English](accepted-crc-extract.md)
 
 ```
 function extract_accepted_crc_tables(path):
@@ -32,4 +32,4 @@ function extract_accepted_crc_tables(path):
 
 `codeRefs` 位于 CRC 校验器（`FUN_181cf3650`）内部的表即为真正的白名单。
 对于 `WolframEngine.dll`，其 VA 为 `0x186d4dd40`，count 为 `0x186d4dd94` = 21；
-参见 [../05-accepted-crc.md](../05-accepted-crc.md)。
+参见 [../05-accepted-crc.zh.md](../05-accepted-crc.zh.md)。

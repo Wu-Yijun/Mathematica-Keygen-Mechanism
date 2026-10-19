@@ -1,6 +1,6 @@
-[English](08-reconstructed-source.md) · **中文**
-
 # 08 — 重建源码（已重命名变量）
+
+**中文** · [English](08-reconstructed-source.md)
 
 以下 C 代码是对反编译代码的忠实重建，其中每个
 `uVarN`/`local_NN`/`param_N` 都已按其含义重命名。注释标明了哪些是在
@@ -153,7 +153,7 @@ const char *verify_password(const char *message, u16 residue0, u16 residue2)
   影响结果（对于生成的密码，条件 A 按构造即被满足）。重建的生成器
   改用数学上更简洁的比特流辅助函数（[code/mathpass.ts](code/mathpass.ts)）。
 - `ACCEPTED_CRC_TABLE` / `ACCEPTED_CRC_TABLE_LEN` 即全局变量 `DAT_186d4dd40` /
-  `DAT_186d4dd94`（见 [05](05-accepted-crc.md)）。
+  `DAT_186d4dd94`（见 [05](05-accepted-crc.zh.md)）。
 
 ### 较旧的变体（无到期日）
 
@@ -164,3 +164,7 @@ MESSAGE_v14_0 = "${mathID}$${LicenseCode}&${activationKey}"
 ```
 
 两个 CRC 条件和该表都未改变；仅消息不同，且跳过了到期日步骤。
+
+---
+
+**← 上一篇：** [07 — 数学原理](07-mathematics.zh.md) · **下一篇：** [09 — 验证](09-validation.zh.md)

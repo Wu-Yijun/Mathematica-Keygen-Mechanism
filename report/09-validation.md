@@ -1,6 +1,6 @@
-**中文** · [English](09-validation.zh.md)
-
 # 09 — Validation
+
+**English** · [中文](09-validation.zh.md)
 
 Every claim in this report is backed either by decompiled code (see
 [02](02-reverse-engineering.md) and [`decompiled/`](decompiled/)) or by a read-only
@@ -118,3 +118,7 @@ file (`WolframNB.exe -pwfile` for the front end, a temporary `mathpass` for
 
 > The REA/Ghidra Evidence JSON that backs the decompilation is **not bundled** in this
 > repository; the extracted pseudocode bodies are kept in [`decompiled/`](decompiled/).
+
+---
+
+**← Previous:** [08 — Reconstructed Source (renamed variables)](08-reconstructed-source.md)

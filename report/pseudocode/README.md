@@ -1,6 +1,6 @@
-**中文** · [English](README.zh.md)
-
 # Pseudocode
+
+**English** · [中文](README.zh.md)
 
 Language-neutral pseudocode for every component, one file per topic. These correspond
 one-to-one with the runnable TypeScript in [`../code/`](../code/) and the raw decompiler

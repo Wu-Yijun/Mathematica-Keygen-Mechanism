@@ -1,6 +1,6 @@
-**中文** · [English](generate.zh.md)
-
 # Pseudocode — key generation (server side)
+
+**English** · [中文](generate.zh.md)
 
 ```
 function generate_mathpass(mathID, activationKey, licenseCode, expiryDate, accepted_crc):

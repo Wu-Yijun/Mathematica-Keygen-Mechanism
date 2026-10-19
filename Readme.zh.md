@@ -1,10 +1,10 @@
-[English](Readme.md) · **中文**
-
 # Mathematica-Keygen-Mechanism
+
+**中文** · [English](Readme.md)
 
 一个基于逆向工程的 Wolfram `mathpass` 许可密码工具：**生成**、**验证**、**提取 Accepted CRC**，
 并可以直接从你本机的 `WolframEngine.dll` 里**读出 Accepted-CRC 表**。
-完整的逆向过程、算法推导与服务端密钥生成分析见 [`report/`](report/README.md)。
+完整的逆向过程、算法推导与服务端密钥生成分析见 [`report/`](report/README.zh.md)。
 
 ## 它能做什么
 
@@ -41,4 +41,4 @@ pnpm preview    # http://localhost:8137/
 
 - 页面里所有默认值都是**合成样例**；本仓库**不含任何厂商二进制**，也**不含真实许可证或可用密钥**。
 - 界面顶部可在**基础模式**（只需版本 + Math ID）与**高级模式**（全部字段 + 位编辑器 + 表导入）之间切换；支持中英文切换。
-- 免责声明见 [`DISCLAIMER.md`](DISCLAIMER.md)。
+- 免责声明见 [`DISCLAIMER.zh.md`](DISCLAIMER.zh.md)。

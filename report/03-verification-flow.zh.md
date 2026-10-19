@@ -1,6 +1,6 @@
-[English](03-verification-flow.md) · **中文**
-
 # 03 — 验证流程
+
+**中文** · [English](03-verification-flow.md)
 
 ## 3.1 输入
 
@@ -23,7 +23,7 @@ expiryDate  = "yyyymmdd"            (or, in some builds, "yyyy-mm-dd")
 
 > 历史上称为 **"Math Num"** 的字段在此称为 **`LicenseCode`**；
 > 它是一个编码产品 / 许可证类别 / 特性的十六进制位掩码，*并非*一个普通数字。
-> 见 [04](04-license-code.md)。
+> 见 [04](04-license-code.zh.md)。
 
 ## 3.2 消息
 
@@ -133,4 +133,8 @@ LicenseCode (hex bitmask)
    └─ feature bit (13/19/28/29)            →  capabilities
 ```
 
-完整位表、谓词与逻辑：[04](04-license-code.md)。
+完整位表、谓词与逻辑：[04](04-license-code.zh.md)。
+
+---
+
+**← 上一篇：** [02 — 逆向工程：方法、工具链与组件图](02-reverse-engineering.zh.md) · **下一篇：** [04 — `LicenseCode`：产品、类别与特性选择](04-license-code.zh.md)

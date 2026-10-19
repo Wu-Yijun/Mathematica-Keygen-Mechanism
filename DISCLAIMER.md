@@ -1,6 +1,6 @@
-**中文** · [English](DISCLAIMER.zh.md)
-
 # Disclaimer
+
+**English** · [中文](DISCLAIMER.zh.md)
 
 This repository documents the **reverse engineering of the offline licence-password
 scheme** used by Wolfram products (`mathpass`) for research, interoperability and

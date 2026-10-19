@@ -1,6 +1,6 @@
-**中文** · [English](accepted-crc-extract.zh.md)
-
 # Pseudocode — extracting the accepted-CRC whitelist from a PE
+
+**English** · [中文](accepted-crc-extract.zh.md)
 
 ```
 function extract_accepted_crc_tables(path):

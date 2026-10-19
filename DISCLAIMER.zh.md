@@ -1,6 +1,6 @@
-[English](DISCLAIMER.md) · **中文**
-
 # 免责声明
+
+**中文** · [English](DISCLAIMER.md)
 
 本仓库记录了针对 Wolfram 产品所使用的**离线许可证—密码方案**（`mathpass`）的**逆向工程**，其目的出于研究、互操作性与教育。
 

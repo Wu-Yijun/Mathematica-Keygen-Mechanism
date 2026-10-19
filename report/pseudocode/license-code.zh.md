@@ -1,6 +1,6 @@
-[English](license-code.md) · **中文**
-
 # 伪代码 — `LicenseCode`（产品 / 类别 / 特性）
+
+**中文** · [English](license-code.md)
 
 ## 谓词   （对应 FUN_140da32d0）
 

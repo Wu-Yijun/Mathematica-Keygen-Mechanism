@@ -1,6 +1,6 @@
-**中文** · [English](06-key-generation.zh.md)
-
 # 06 — Server-Side Key Generation
+
+**English** · [中文](06-key-generation.zh.md)
 
 ## 6.1 Where generation happens
 
@@ -100,3 +100,7 @@ function generate(passwordLenUnused, mathID, activationKey, LicenseCode, expiryD
 # crc_invert_prefix: the 2-byte prefix w such that CRC(poly, init, w ‖ data) == target.
 # Implemented by solving L(w) = S_n⁻¹(target ⊕ CRC(poly,0,data)) ⊕ S_2(init)  (GF(2) solve)
 ```
+
+---
+
+**← Previous:** [05 — The Accepted CRCs](05-accepted-crc.md) · **Next:** [07 — The Mathematics](07-mathematics.md)

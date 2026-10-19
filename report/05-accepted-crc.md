@@ -1,6 +1,6 @@
-**中文** · [English](05-accepted-crc.zh.md)
-
 # 05 — The Accepted CRCs
+
+**English** · [中文](05-accepted-crc.zh.md)
 
 ## 5.1 What an accepted CRC actually is
 
@@ -118,3 +118,7 @@ The table is what matters, not any external list. Empirically:
 So "the accepted CRC" is build-dependent; the robust procedure is to **extract the table
 from the exact binary** with [code/accepted-crc-table.ts](code/accepted-crc-table.ts) and use one of
 its entries.
+
+---
+
+**← Previous:** [04 — `LicenseCode`: product, class, and feature selection](04-license-code.md) · **Next:** [06 — Server-Side Key Generation](06-key-generation.md)

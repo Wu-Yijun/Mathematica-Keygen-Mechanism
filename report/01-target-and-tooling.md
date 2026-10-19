@@ -1,6 +1,6 @@
-**中文** · [English](01-target-and-tooling.zh.md)
-
 # 01 — Target and Tooling
+
+**English** · [中文](01-target-and-tooling.zh.md)
 
 ## 1. Target identity
 
@@ -84,3 +84,7 @@ address.
    [`code/selfcheck.ts`](code/selfcheck.ts) (see [07](07-mathematics.md)).
 4. Extract the build's accepted-CRC table ([05](05-accepted-crc.md),
    [`code/accepted-crc-table.ts`](code/accepted-crc-table.ts)).
+
+---
+
+**Next:** [02 — Reverse Engineering: Method, Tooling, and Component Map](02-reverse-engineering.md)

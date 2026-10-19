@@ -1,6 +1,6 @@
-[English](README.md) · **中文**
-
 # 报告代码
+
+**中文** · [English](README.md)
 
 逆向出的 `mathpass` 方案的 TypeScript 实现。使用支持 TypeScript 的 Node 运行（Node ≥ 22 可通过类型擦除直接运行 `.ts`；已在 Node 26 上测试）。以下命令假设以本文件夹为工作目录；若从仓库根目录运行，请为其加上 `report/code/` 前缀。
 

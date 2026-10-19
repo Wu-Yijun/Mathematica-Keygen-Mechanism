@@ -1,6 +1,6 @@
-**中文** · [English](08-reconstructed-source.zh.md)
-
 # 08 — Reconstructed Source (renamed variables)
+
+**English** · [中文](08-reconstructed-source.zh.md)
 
 The following C is a faithful reconstruction of the decompiled code, with every
 `uVarN`/`local_NN`/`param_N` renamed to its meaning. Comments mark what was *observed*
@@ -166,3 +166,7 @@ MESSAGE_v14_0 = "${mathID}$${LicenseCode}&${activationKey}"
 
 The two CRC conditions and the table are unchanged; only the message differs and the
 expiry step is skipped.
+
+---
+
+**← Previous:** [07 — The Mathematics](07-mathematics.md) · **Next:** [09 — Validation](09-validation.md)

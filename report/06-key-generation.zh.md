@@ -1,6 +1,6 @@
-[English](06-key-generation.md) · **中文**
-
 # 06 — 服务端密钥生成
+
+**中文** · [English](06-key-generation.md)
 
 ## 6.1 生成发生在何处
 
@@ -36,7 +36,7 @@ Key generation failed
    password  ← signature "::" LicenseCode ":" expiryDate
 ```
 
-步骤 3 和 4 是 **CRC 求逆**（[07](07-mathematics.md) §7.2）：由于 2 字节
+步骤 3 和 4 是 **CRC 求逆**（[07](07-mathematics.zh.md) §7.2）：由于 2 字节
 前缀在状态上表现为仿射双射，所需的字节通过
 对 16×16 的 GF(2) 线性映射求逆而获得。复杂度为 `O(|MESSAGE| + 16²)`。这里
 **没有**对密钥、对 2³² 密码空间、或对 Accepted CRC 值的
@@ -81,7 +81,7 @@ generatePassword("0000-00000-00000", "0000-0000-AAAAAA", "800001", "20300101", 5
 推断（无法从单个构建完全确定）：Accepted CRC 编码了
 **产品/版本**，因此服务端为每个产品选择一个固定的 `M`。支持性证据：
 该表很小（21 个条目），这些值不携带任何算术模式
-（[05](05-accepted-crc.md)），且二进制接受其中*任意*一个——这正是
+（[05](05-accepted-crc.zh.md)），且二进制接受其中*任意*一个——这正是
 “每个版本/产品族一个密钥”列表的形态。确定完整映射需要若干个
 不同版本的正版许可证。
 
@@ -101,3 +101,7 @@ function generate(passwordLenUnused, mathID, activationKey, LicenseCode, expiryD
 # crc_invert_prefix: the 2-byte prefix w such that CRC(poly, init, w ‖ data) == target.
 # Implemented by solving L(w) = S_n⁻¹(target ⊕ CRC(poly,0,data)) ⊕ S_2(init)  (GF(2) solve)
 ```
+
+---
+
+**← 上一篇：** [05 — Accepted CRC 表](05-accepted-crc.zh.md) · **下一篇：** [07 — 数学原理](07-mathematics.zh.md)

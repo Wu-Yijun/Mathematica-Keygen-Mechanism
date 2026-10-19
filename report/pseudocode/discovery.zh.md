@@ -1,6 +1,6 @@
-[English](discovery.md) · **中文**
-
 # 伪代码 — 发现原语
+
+**中文** · [English](discovery.md)
 
 整个调查由两个原语驱动；二者都只需要 PE 文件的字节。
 

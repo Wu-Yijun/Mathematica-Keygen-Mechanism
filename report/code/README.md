@@ -1,6 +1,6 @@
-**中文** · [English](README.zh.md)
-
 # Report code
+
+**English** · [中文](README.zh.md)
 
 TypeScript implementations of the reversed `mathpass` scheme. Run with a TypeScript-
 capable Node (Node ≥ 22 runs `.ts` directly via type stripping; tested on Node 26).

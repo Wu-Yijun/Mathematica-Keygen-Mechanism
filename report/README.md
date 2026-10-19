@@ -1,6 +1,6 @@
-**中文** · [English](README.zh.md)
-
 # Wolfram Mathematica `mathpass` — Full Reverse-Engineering Report
+
+**English** · [中文](README.zh.md)
 
 A complete, reproducible reverse-engineering of the offline licence-password scheme
 ("`mathpass`") used by **Wolfram 15.0.1** (the build analysed here), including the
@@ -87,4 +87,3 @@ node report/code/accepted-crc-table.ts "…\WolframEngine.dll"   # extract the w
 ```
 
 Static analysis used REA + Ghidra; see [02 §2.0](02-reverse-engineering.md#20-tooling)
-

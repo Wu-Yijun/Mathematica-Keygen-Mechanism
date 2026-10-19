@@ -1,6 +1,6 @@
-[English](04-license-code.md) · **中文**
-
 # 04 — `LicenseCode`：产品、类别与特性选择
+
+**中文** · [English](04-license-code.md)
 
 `LicenseCode` 是历史上被称为 **"Math Num"** / `mathNum` 的字段——即密码
 `signature"::"LicenseCode":"expiry` 中的 `bbbbbb` 部分。逆向工程表明它
@@ -8,8 +8,8 @@
 *产品性质*、一个*许可类别*或一项*能力*。
 
 本章讨论其语义；定位到它的逆向工程方法见
-[02 §2.5](02-reverse-engineering.md)，它在消息中的作用见
-[03 §3.9](03-verification-flow.md)。
+[02 §2.5](02-reverse-engineering.zh.md)，它在消息中的作用见
+[03 §3.9](03-verification-flow.zh.md)。
 
 ## 4.1 谓词——它确实是一次位测试
 
@@ -41,7 +41,7 @@ bool license_code_has_bit(const char *code, const char *licenseCode) {
 
 ## 4.3 位表
 
-| bit | mask（十六进制） | 含义 | 定义于 |
+| 比特 | 掩码（十六进制） | 含义 | 定义于 |
 | --- | --- | --- | --- |
 | 0 | `0x0000001` | 基础标志（在正版 `800001` 中置位） | 已观察 |
 | 1 | `0x0000002` | **Trial** | `FUN_140a8ad70` |
@@ -144,3 +144,7 @@ $currentProductID = Select[CurrentValue["ActivationInformation"], #["Status"]=="
 - 比特 4、7–10、12、14–18、25、27、30、31 在此构建中没有观察到任何含义。
 - 是否为每个可购买的 SKU 签发特定的比特组合，这是一个服务端
   决策，无法从单次安装中确定。
+
+---
+
+**← 上一篇：** [03 — 验证流程](03-verification-flow.zh.md) · **下一篇：** [05 — Accepted CRC 表](05-accepted-crc.zh.md)

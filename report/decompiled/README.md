@@ -1,6 +1,6 @@
-**中文** · [English](README.zh.md)
-
 # Decompiled output
+
+**English** · [中文](README.zh.md)
 
 These are the **raw Ghidra pseudocode** bodies of the functions that matter most, kept
 verbatim (only the header's evidence-path line was dropped). They are the decompiler's

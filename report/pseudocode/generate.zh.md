@@ -1,6 +1,6 @@
-[English](generate.md) · **中文**
-
 # 伪代码 — 密钥生成（服务端）
+
+**中文** · [English](generate.md)
 
 ```
 function generate_mathpass(mathID, activationKey, licenseCode, expiryDate, accepted_crc):
@@ -39,4 +39,4 @@ S_1⁻¹(y): t = y & 1;  return ((y ^ (t ? P : 0)) >> 1) | (t << 15)
 
 65536 次迭代的 2 字节暴力枚举同样有效，且仍是常数时间的；它*并非*
 对密钥或 2³² 密码空间的搜索。参见
-[../06-key-generation.md](../06-key-generation.md)。
+[../06-key-generation.zh.md](../06-key-generation.zh.md)。

@@ -1,6 +1,6 @@
-**中文** · [English](discovery.zh.md)
-
 # Pseudocode — discovery primitives
+
+**English** · [中文](discovery.zh.md)
 
 Two primitives drive the whole investigation; both need only the PE file bytes.
 

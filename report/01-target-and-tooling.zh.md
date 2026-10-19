@@ -1,6 +1,6 @@
-[English](01-target-and-tooling.md) · **中文**
-
 # 01 — 目标与工具链
+
+**中文** · [English](01-target-and-tooling.md)
 
 ## 1. 目标身份
 
@@ -15,7 +15,7 @@
 
 > 本仓库中的公开参考实现 `main@v14.1.0.js` 是 **v14.1.0** 产物；此处分析的二进制是
 > **已安装的 15.0.1**。方案与密码格式相同，但 **Accepted CRC 白名单因构建而异**
-> （见 [05](05-accepted-crc.md)）；此处提取的一切均为 15.0.1 的表。
+> （见 [05](05-accepted-crc.zh.md)）；此处提取的一切均为 15.0.1 的表。
 
 相同的许可代码（错误字符串完全一致）被静态链接进多个随附二进制中。其中任何一个都是有效的分析目标：
 
@@ -70,9 +70,13 @@ $env:REA_GHIDRA_STARTUP_TIMEOUT_MS = "10800000"     # 120 MB analysis needs hour
 
 1. 在 Wolfram 安装目录下执行
    `findstr /s /m /c:"Password not in format dddd-ddd-ddd." *.dll *.exe` → 找出哪些模块嵌入了许可代码。
-2. 反编译校验器（见 [02](02-reverse-engineering.md)）；本报告保留的提取主体位于
+2. 反编译校验器（见 [02](02-reverse-engineering.zh.md)）；本报告保留的提取主体位于
    [`decompiled/`](decompiled/)。
 3. 验证模型并用
-   [`code/selfcheck.ts`](code/selfcheck.ts) 重新生成密码（见 [07](07-mathematics.md)）。
-4. 提取该构建的 Accepted CRC 表（[05](05-accepted-crc.md)，
+   [`code/selfcheck.ts`](code/selfcheck.ts) 重新生成密码（见 [07](07-mathematics.zh.md)）。
+4. 提取该构建的 Accepted CRC 表（[05](05-accepted-crc.zh.md)，
    [`code/accepted-crc-table.ts`](code/accepted-crc-table.ts)）。
+
+---
+
+**下一篇：** [02 — 逆向工程：方法、工具链与组件图](02-reverse-engineering.zh.md)

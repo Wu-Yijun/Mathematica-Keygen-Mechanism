@@ -1,6 +1,6 @@
-[English](02-reverse-engineering.md) · **中文**
-
 # 02 — 逆向工程：方法、工具链与组件图
+
+**中文** · [English](02-reverse-engineering.md)
 
 本章是报告的逆向工程核心。它**按子系统**组织
 （而非按工作发生的顺序），并覆盖许可方案的每一部分：
@@ -110,8 +110,8 @@ findstr /S /M /C:"Password not in format dddd-ddd-ddd." *.dll *.exe
 副本逐常量匹配。
 
 证据：用 REA/Ghidra 获得（`--procedure <VA>`）；原始主体保存在
-[`decompiled/`](decompiled/)。算法：[03](03-verification-flow.md)，
-[07](07-mathematics.md)。重构：[08](08-reconstructed-source.md)。
+[`decompiled/`](decompiled/)。算法：[03](03-verification-flow.zh.md)，
+[07](07-mathematics.zh.md)。重构：[08](08-reconstructed-source.zh.md)。
 
 ## 2.4 子系统 B — Accepted CRC 白名单
 
@@ -131,13 +131,13 @@ je   accepted
 特征通过一次普通扫描即可找到；该表得到确认，是因为*代码在校验器内部
 通过 RIP 相对加载引用它*。对于 `WolframEngine.dll`：表 VA
 `0x186d4dd40`，计数 VA `0x186d4dd94` = **21**。完整处理与值列表见
-[05](05-accepted-crc.md)；提取器为
+[05](05-accepted-crc.zh.md)；提取器为
 [`code/accepted-crc-table.ts`](code/accepted-crc-table.ts)。
 
 ## 2.5 子系统 C — LicenseCode（产品 / 类别 / 特性）
 
 > 历史上称为 "Math Num" 的那个密码字段；它是一个**十六进制位掩码**。
-> 本报告称其为 **`LicenseCode`**。完整表见 [04](04-license-code.md)。
+> 本报告称其为 **`LicenseCode`**。完整表见 [04](04-license-code.zh.md)。
 
 **内核侧。** 内核公开 `System`$LicenseType`、`$LicenseID`、
 `$LicenseExpirationDate`、`$ProductInformation`（符号名位于 `WolframEngine.dll`
@@ -169,7 +169,7 @@ je   accepted
 "启动不同的子程序"背后的机制。
 
 证据：用 REA/Ghidra 获得；见 [`decompiled/`](decompiled/)。产品 / 类别 / 特性表及
-逻辑：[04](04-license-code.md)。
+逻辑：[04](04-license-code.zh.md)。
 
 ## 2.6 子系统 D — 激活（服务端）
 
@@ -180,7 +180,7 @@ https://user.wolfram.com/services/1.0/password
 actkey=… & pactkey=… & mathid=…
 ```
 
-因此密码的*生成*在服务端，而*离线验证*嵌入在上述二进制中。生成算法是验证的逆过程，推导见 [06](06-key-generation.md)。
+因此密码的*生成*在服务端，而*离线验证*嵌入在上述二进制中。生成算法是验证的逆过程，推导见 [06](06-key-generation.zh.md)。
 
 ## 2.7 Oracle 与交叉校验
 
@@ -196,8 +196,12 @@ actkey=… & pactkey=… & mathid=…
   `WolframEngine.dll` 中相同的表 / 常量（仅在一个表项上不同，证明白名单
   因构建而异）。
 - **重新生成**：重构的生成器逐字节重现真实许可证密码
-  （此处隐去其值）；见 [09](09-validation.md)。
+  （此处隐去其值）；见 [09](09-validation.zh.md)。
 
 内核 oracle 是一段简短的 `wolframscript` 运行，为某个许可证文件打印 `$LicenseType`、`$ActivationKey`
 和 `$ProductInformation`；前端 oracle 是一次
 `WolframNB.exe -pwfile <file>` 启动，从不触碰系统许可证。
+
+---
+
+**← 上一篇：** [01 — 目标与工具链](01-target-and-tooling.zh.md) · **下一篇：** [03 — 验证流程](03-verification-flow.zh.md)

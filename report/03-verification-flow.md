@@ -1,6 +1,6 @@
-**中文** · [English](03-verification-flow.zh.md)
-
 # 03 — The Verification Flow
+
+**English** · [中文](03-verification-flow.zh.md)
 
 ## 3.1 Inputs
 
@@ -134,3 +134,7 @@ LicenseCode (hex bitmask)
 ```
 
 Full bit table, predicate and logic: [04](04-license-code.md).
+
+---
+
+**← Previous:** [02 — Reverse Engineering: Method, Tooling, and Component Map](02-reverse-engineering.md) · **Next:** [04 — `LicenseCode`: product, class, and feature selection](04-license-code.md)

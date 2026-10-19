@@ -1,9 +1,9 @@
-[English](09-validation.md) · **中文**
-
 # 09 — 验证
 
+**中文** · [English](09-validation.md)
+
 本报告中的每一项断言都由反编译代码（见
-[02](02-reverse-engineering.md) 和 [`decompiled/`](decompiled/)）或一个只读
+[02](02-reverse-engineering.zh.md) 和 [`decompiled/`](decompiled/)）或一个只读
 oracle 作为支撑。本章汇集了这些*验证* —— 那些证实重建正确、而非仅仅看似合理的实验。
 
 > **关于此处所用的值。** 下文每个许可证值都是一个**合成
@@ -65,7 +65,7 @@ accepted CRC —— 例如公开概念验证的
 **前端**（`WolframNB.exe -pwfile <file>`；系统许可证不会被修改）——
 产品从欢迎窗口标题读取：
 
-| `LicenseCode` | bits | welcome title |
+| `LicenseCode` | 比特 | 欢迎标题 |
 | --- | --- | --- |
 | `800001` | 0, 23 | Welcome to Wolfram Mathematica |
 | `800000` | 23 | Welcome to Wolfram Mathematica |
@@ -78,7 +78,7 @@ accepted CRC —— 例如公开概念验证的
 
 **内核**（`wolframscript`）—— 许可证类别：
 
-| `LicenseCode` | bits | `$LicenseType` |
+| `LicenseCode` | 比特 | `$LicenseType` |
 | --- | --- | --- |
 | `800001` | 0, 23 | Professional |
 | `800002` | 1, 23 | Trial |
@@ -87,7 +87,7 @@ accepted CRC —— 例如公开概念验证的
 | `400004` | 2, 22 | Student |
 | `800021` | 0, 5, 23 | *rejected*（Player 与 Mathematica 位冲突） |
 
-这些确认了 [04](04-license-code.md) 中的 `LicenseCode` 位表。
+这些确认了 [04](04-license-code.zh.md) 中的 `LicenseCode` 位表。
 
 ## 9.6 闭式 2 字节求解等于穷举搜索
 
@@ -116,3 +116,7 @@ node report/code/selfcheck.ts        # all of the above
 
 > 支撑本次反编译的 REA/Ghidra Evidence JSON **未随**本
 > 仓库提供；所提取的伪代码主体保存在 [`decompiled/`](decompiled/) 中。
+
+---
+
+**← 上一篇：** [08 — 重建源码（已重命名变量）](08-reconstructed-source.zh.md)

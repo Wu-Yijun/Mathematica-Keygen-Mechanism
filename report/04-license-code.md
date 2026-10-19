@@ -1,6 +1,6 @@
-**中文** · [English](04-license-code.zh.md)
-
 # 04 — `LicenseCode`: product, class, and feature selection
+
+**English** · [中文](04-license-code.zh.md)
 
 `LicenseCode` is the field historically called **"Math Num"** / `mathNum` — the
 `bbbbbb` part of a password `signature"::"LicenseCode":"expiry`. Reverse engineering
@@ -144,3 +144,7 @@ being one of bits 20–23.
 - Bits 4, 7–10, 12, 14–18, 25, 27, 30, 31 have no observed meaning in this build.
 - Whether specific bit combinations are issued per purchasable SKU is a server-side
   decision and cannot be determined from one install.
+
+---
+
+**← Previous:** [03 — The Verification Flow](03-verification-flow.md) · **Next:** [05 — The Accepted CRCs](05-accepted-crc.md)

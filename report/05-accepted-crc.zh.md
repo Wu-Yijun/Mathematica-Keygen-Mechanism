@@ -1,6 +1,6 @@
-[English](05-accepted-crc.md) · **中文**
-
 # 05 — Accepted CRC 表
+
+**中文** · [English](05-accepted-crc.md)
 
 ## 5.1 Accepted CRC 究竟是什么
 
@@ -117,3 +117,7 @@
 因此，“Accepted CRC”是因构建而异的；稳健的做法是用
 [code/accepted-crc-table.ts](code/accepted-crc-table.ts) **从确切的二进制中提取该表**，并使用其中
 的某个条目。
+
+---
+
+**← 上一篇：** [04 — `LicenseCode`：产品、类别与特性选择](04-license-code.zh.md) · **下一篇：** [06 — 服务端密钥生成](06-key-generation.zh.md)

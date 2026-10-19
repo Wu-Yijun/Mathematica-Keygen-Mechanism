@@ -1,6 +1,6 @@
-**中文** · [English](07-mathematics.zh.md)
-
 # 07 — The Mathematics
+
+**English** · [中文](07-mathematics.zh.md)
 
 ## 7.1 CRC as arithmetic over GF(2)
 
@@ -129,3 +129,7 @@ For the genuine message, brute-forcing the initial value finds **exactly one** v
 satisfies condition B (`59222`), and it is a table member. A forger without the table
 would have to guess one of 21 of 65536 states *and* satisfy condition A — feasible once
 the structure is known, impossible by blind guessing.
+
+---
+
+**← Previous:** [06 — Server-Side Key Generation](06-key-generation.md) · **Next:** [08 — Reconstructed Source (renamed variables)](08-reconstructed-source.md)

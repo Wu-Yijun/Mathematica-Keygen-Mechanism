@@ -1,6 +1,6 @@
-**English** · [中文](Readme.zh.md)
-
 # Mathematica-Keygen-Mechanism
+
+**English** · [中文](Readme.zh.md)
 
 A reverse-engineering based tool for Wolfram's `mathpass` licence passwords:
 **generate**, **verify** and **extract the Accepted CRC**, plus **read the Accepted-CRC
