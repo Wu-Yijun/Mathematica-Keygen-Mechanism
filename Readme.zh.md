@@ -29,7 +29,7 @@ pnpm preview    # http://localhost:8137/
 
 ### 脚本用法（Node）
 
-算法与命令行实现都在 [`report/code/`](report/code)；Node ≥ 22 可直接运行 `.ts`（类型擦除）。
+算法与命令行实现都在 [`report/code/`](report/code/README.zh.md)；Node ≥ 22 可直接运行 `.ts`（类型擦除）。
 
 命令行：
 
@@ -65,25 +65,64 @@ console.log(decodeLicenseCode("800001"));        // Mathematica / Professional
 
 网页 `src/` 正是直接 `import` 这些模块——构建时被内联进 `dist/index.js`，因此页面与脚本永远共用同一份算法实现。
 
-## 结构与数学
+## 验证的逻辑结构与数学
 
-**结构。** `src/` 是页面源码，`tsdown` 把它打包成 `dist/`（连同 `index.html`、`index.css`、`logo.svg`、`favicon.ico` 一并复制）。`report/` 是逆向产物：`01`–`09` 章节正文、`code/`（上节列出的算法与 CLI）、`pseudocode/`（语言无关伪代码）、`decompiled/`（Ghidra 反编译原文）。`scripts/serve.mjs` 提供本地预览；`.github/workflows/deploy.yaml` 依次执行 安装 → 类型检查 → 算法自检 → 构建 → 部署 `dist/`。
+### 逻辑结构
 
-**数学。** 密码 `signature::LicenseCode[:YYYYMMDD]` 的 12 位签名编码两个 16 位值，其中 `v1`、`v2` 是按固定置换从签名数字里取出的两个 5 位十进制数（置换本身只是混淆）：
+不存在任何本地许可证数据库可供比对：密码**当且仅当两条 CRC 条件同时成立**才被接受，之后的一切只是在
+解释签名已经证明过的内容。
+
+```
+password  ── 按 ':' 切分 ─► signature | LicenseCode | expiry   （expiry 仅 ≥ 14.1）
+signature ── 固定数字置换，再取 ceil(v · 65535 / 99999) ─► n1, n2
+                                n0 = (n1 + 0x8D06) mod 2^16
+MESSAGE   =  mathID@YYYYMMDD$LicenseCode&activationKey            （≥ 14.1）
+             mathID$LicenseCode&activationKey                     （≤ 14.0）
+
+条件 A   CRC_{P_A}(n2 ‖ MESSAGE ‖ ω(n0)) == 0                     完整性
+条件 B   CRC_{P_B}(n0 ‖ MESSAGE) ∈ Accepted-CRC 表                 真实性
+
+接受 ⇔ A 且 B
+随后：检查到期日 · 解码 LicenseCode 为 产品 / 类别 / 特性
+```
+
+顺序与覆盖范围是关键：
+
+- 签名**先**被校验，之后才轮到其它字段；两条 CRC 都作用于 `MESSAGE`，所以 `LicenseCode` 与到期日
+  一旦被改动就会同时破坏 A、B；
+- **到期日**是其后单独的一步检查（过期即 `Password has expired.`），见
+  [03-verification-flow.zh.md](report/03-verification-flow.zh.md)；
+- **产品 / 版本并不是由 CRC 决定的**，而是 `LicenseCode` 位掩码
+  （[04-license-code.zh.md](report/04-license-code.zh.md)）；
+- 真实性条件只问「CRC 是否落在某一小组取值之内」，而该白名单每个构建一份
+  （[05-accepted-crc.zh.md](report/05-accepted-crc.zh.md)）；
+- 章节全貌：[01](report/01-target-and-tooling.zh.md)–[02](report/02-reverse-engineering.zh.md)（方法）、
+  [03](report/03-verification-flow.zh.md)（校验流程）、[04](report/04-license-code.zh.md)、
+  [05](report/05-accepted-crc.zh.md)、[06](report/06-key-generation.zh.md)（服务端生成）、
+  [07](report/07-mathematics.zh.md)（代数）、[08](report/08-reconstructed-source.zh.md)（重构源码）、
+  [09](report/09-validation.zh.md)（全部验证实验）。
+
+### 数学
+
+12 位签名编码两个 16 位值；`v1`、`v2` 是按固定置换从签名数字里读出的两个 5 位十进制数（置换本身只是混淆，
+见 [07-mathematics.zh.md](report/07-mathematics.zh.md)）：
 
 ```
 n1 = ceil(v1 · 65535 / 99999)      n2 = ceil(v2 · 65535 / 99999)
 n0 = (n1 + 0x8D06) mod 2^16
 ```
 
-校验用两条共享初值 `0xA5B6` 的 **MSB-first CRC-16**（多项式 `P_A = 0x1064B`、`P_B = 0x105C3`）：
+两条条件都是共享初值 `0xA5B6` 的 **MSB-first CRC-16**，即 `GF(2)[x] / (x^16)` 上的运算，多项式分别为
+`P_A = 0x1064B`、`P_B = 0x105C3`：
 
 - **条件 A（完整性）** —— `CRC_{P_A}(n2 ‖ MESSAGE ‖ ω(n0)) == 0`
-- **条件 B（真实性）** —— `CRC_{P_B}(n0 ‖ MESSAGE) ∈ Accepted-CRC 表`（每个构建一份白名单；15.0.1 为 21 项）
+- **条件 B（真实性）** —— `CRC_{P_B}(n0 ‖ MESSAGE) ∈ Accepted-CRC 表`（15.0.1 为 21 项）
 
-其中 `MESSAGE = mathID@YYYYMMDD$LicenseCode&activationKey`（≥ 14.1）或 `mathID$LicenseCode&activationKey`（≤ 14.0）。
-
-**生成不需要任何搜索。** `MESSAGE` 固定后，`n0`、`n2` 只是 `MESSAGE` 与 `ω(n0)` 前面的 2 字节前缀；而 2 字节前缀对 CRC 状态是 **GF(2) 上的仿射双射**，所以解一个 16×16 线性方程组即可（复杂度 `O(|MESSAGE|)`），既不是密钥空间搜索，也不是参数爆破。
+**生成不需要任何搜索。** `MESSAGE` 固定后，`n0`、`n2` 只是 `MESSAGE` 与 `ω(n0)` 前面的 2 字节前缀；
+而 2 字节前缀对 CRC 状态是 **GF(2) 上的仿射双射**，所以解一个 16×16 线性方程组即可（复杂度
+`O(|MESSAGE|)`），既不是密钥空间搜索，也不是参数爆破（见
+[06-key-generation.zh.md](report/06-key-generation.zh.md)，
+[code/selfcheck.ts](report/code/selfcheck.ts) 即用它从零重算出一份真实许可证）。
 
 ## 说明
 

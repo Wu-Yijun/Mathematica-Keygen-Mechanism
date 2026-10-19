@@ -6,7 +6,7 @@
  */
 import {
   ACCEPTED_CRC_TABLE_V15_0_1, ACCEPTED_CRC_V14_0,
-} from "../../report/code/mathpass.ts";
+} from "../report/code/mathpass.ts";
 import type { Lang } from "./i18n.ts";
 
 export type Mode = "basic" | "advanced";

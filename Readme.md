@@ -31,8 +31,8 @@ pnpm preview    # http://localhost:8137/
 
 ### Scripts (Node)
 
-The algorithm and the command line live in [`report/code/`](report/code); Node ≥ 22 runs the
-`.ts` files directly (type stripping).
+The algorithm and the command line live in [`report/code/`](report/code/README.md); Node ≥ 22 runs
+the `.ts` files directly (type stripping).
 
 Command line:
 
@@ -69,38 +69,66 @@ console.log(decodeLicenseCode("800001"));        // Mathematica / Professional
 The page in `src/` imports exactly these modules — they are inlined into `dist/index.js` at build
 time, so the page and the scripts can never drift apart.
 
-## Structure and maths
+## Verification logic and the maths
 
-**Structure.** `src/` is the page source; `tsdown` bundles it into `dist/` (together with
-`index.html`, `index.css`, `logo.svg` and `favicon.ico`). `report/` holds the reverse-engineering
-output: chapters `01`–`09`, `code/` (the algorithm and the CLI above), `pseudocode/`
-(language-neutral pseudocode) and `decompiled/` (raw Ghidra output). `scripts/serve.mjs` serves a
-local preview, and `.github/workflows/deploy.yaml` runs install → type check → algorithm
-self-check → build → deploy `dist/`.
+### The logic
 
-**Maths.** The 12-character signature of `signature::LicenseCode[:YYYYMMDD]` encodes two 16-bit
-values, where `v1` and `v2` are two 5-digit decimal groups read out of the signature by a fixed
-permutation (obfuscation only):
+There is no licence database to compare against: a password is accepted **iff two CRC conditions
+hold**, and everything after that only interprets what the signature already proved.
+
+```
+password  ── split on ':' ─► signature | LicenseCode | expiry   (expiry only for ≥ 14.1)
+signature ── fixed digit permutation, then ceil(v · 65535 / 99999) ─► n1, n2
+                                n0 = (n1 + 0x8D06) mod 2^16
+MESSAGE   =  mathID@YYYYMMDD$LicenseCode&activationKey            (≥ 14.1)
+             mathID$LicenseCode&activationKey                     (≤ 14.0)
+
+condition A   CRC_{P_A}(n2 ‖ MESSAGE ‖ ω(n0)) == 0                integrity
+condition B   CRC_{P_B}(n0 ‖ MESSAGE) ∈ Accepted-CRC table        authenticity
+
+accept  ⇔  A and B
+then:  expiry date checked · LicenseCode decoded into product / class / capabilities
+```
+
+Order and coverage are the point:
+
+- the signature is checked **before** anything else is trusted, and both CRC conditions run on
+  `MESSAGE`, so `LicenseCode` and the expiry date cannot be edited without breaking them;
+- the **expiry date** is a separate, later check (`Password has expired.`) — see
+  [03-verification-flow.md](report/03-verification-flow.md);
+- the **product / edition is not decided by the CRC** — that is the `LicenseCode` bitmask
+  ([04-license-code.md](report/04-license-code.md));
+- the authenticity condition only asks whether the CRC lands on one of a small set of values, one
+  whitelist per build ([05-accepted-crc.md](report/05-accepted-crc.md));
+- chapters in full: [01](report/01-target-and-tooling.md)–[02](report/02-reverse-engineering.md)
+  (method), [03](report/03-verification-flow.md) (the flow), [04](report/04-license-code.md),
+  [05](report/05-accepted-crc.md), [06](report/06-key-generation.md) (server-side generation),
+  [07](report/07-mathematics.md) (the algebra), [08](report/08-reconstructed-source.md)
+  (reconstructed source), [09](report/09-validation.md) (all validation experiments).
+
+### The maths
+
+The 12-character signature encodes two 16-bit values; `v1` and `v2` are two 5-digit decimal groups
+read out of the signature by a fixed permutation (obfuscation only, see
+[07-mathematics.md](report/07-mathematics.md)):
 
 ```
 n1 = ceil(v1 · 65535 / 99999)      n2 = ceil(v2 · 65535 / 99999)
 n0 = (n1 + 0x8D06) mod 2^16
 ```
 
-Verification uses two **MSB-first CRC-16** that share the initial value `0xA5B6` (polynomials
-`P_A = 0x1064B` and `P_B = 0x105C3`):
+Both conditions are **MSB-first CRC-16** sharing the initial value `0xA5B6`, i.e. arithmetic in
+`GF(2)[x] / (x^16)` with polynomials `P_A = 0x1064B` and `P_B = 0x105C3`:
 
 - **condition A (integrity)** — `CRC_{P_A}(n2 ‖ MESSAGE ‖ ω(n0)) == 0`
 - **condition B (authenticity)** — `CRC_{P_B}(n0 ‖ MESSAGE) ∈ Accepted-CRC table`
-  (one whitelist per build; 21 entries for 15.0.1)
-
-with `MESSAGE = mathID@YYYYMMDD$LicenseCode&activationKey` (≥ 14.1) or
-`mathID$LicenseCode&activationKey` (≤ 14.0).
+  (21 entries for 15.0.1)
 
 **Generating needs no search.** Once `MESSAGE` is fixed, `n0` and `n2` are just the 2-byte prefixes
 in front of `MESSAGE` and `ω(n0)`. A 2-byte prefix acts as an **affine bijection over GF(2)** on the
-CRC state, so a 16×16 linear solve produces them in `O(|MESSAGE|)` — no search over keys or
-parameters.
+CRC state, so a 16×16 linear solve produces them in `O(|MESSAGE|)` — not a search over keys or
+parameters ([06-key-generation.md](report/06-key-generation.md),
+[code/selfcheck.ts](report/code/selfcheck.ts) re-derives a real licence from scratch).
 
 ## Notes
 

@@ -5,8 +5,8 @@
 import {
   generateSignature, messageOf, messageOfLegacy, parsePassword,
   verifySignature, type VerifyResult,
-} from "../../report/code/mathpass.ts";
-import { decodeLicenseCode } from "../../report/code/licenseCode.ts";
+} from "../report/code/mathpass.ts";
+import { decodeLicenseCode } from "../report/code/licenseCode.ts";
 import { DOC_BASE, GITHUB_BASE, applyI18n, detectLang, getLang, setLang, t, tf } from "./i18n.ts";
 import {
   CAPABILITY_BITS, CLASS_BITS, DEFAULT_ACCEPTED_CRC, PRODUCT_BITS, VERSION_FORMATS, addToDate, daysLeft,
