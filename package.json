@@ -3,6 +3,10 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22.18.0",
+    "pnpm": ">=12"
+  },
   "description": "Wolfram mathpass licence-password tool: generate, verify, extract the accepted CRC, and read the accepted-CRC table out of a shipped DLL.",
   "scripts": {
     "build": "tsdown",

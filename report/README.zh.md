@@ -2,7 +2,7 @@
 
 # Wolfram Mathematica `mathpass` — 完整逆向工程报告
 
-对 **Wolfram 15.0.1**（此处分析的构建）所使用的离线许可密码方案（“`mathpass`”）的完整、可复现的逆向工程，包括其所隐含的服务端密钥生成逻辑、**`LicenseCode`**（产品 / 类别 / 功能）位掩码，以及磁盘上的 **Accepted CRC 白名单**。
+对 **Wolfram 15.0.1**（此处分析的构建）所使用的离线许可密码方案（“`mathpass`”）的完整、可复现的逆向工程，包括其所隐含的服务端密钥生成逻辑、**`LicenseCode`**（产品 / 类别 / 特性）位掩码，以及磁盘上的 **Accepted CRC 白名单**。
 
 每一项论断均由对所发布二进制的反编译作为支撑，并用只读预言机进行了验证；重建出的生成器能够逐字节复现一个**真实许可密码**（该许可未在本文中公开——见 [09](09-validation.md)）。
 
@@ -54,7 +54,7 @@ mathpass entry (TAB separated):  name   mathID   activationKey   password
 | 01 | [01-target-and-tooling.md](01-target-and-tooling.md) | 目标标识、哈希、二进制、工具链、复现清单 |
 | 02 | [02-reverse-engineering.md](02-reverse-engineering.md) | **逆向工程方法与组件地图**（按子系统，含 `LicenseCode`） |
 | 03 | [03-verification-flow.md](03-verification-flow.md) | 端到端验证流程与确切条件 |
-| 04 | [04-license-code.md](04-license-code.md) | **`LicenseCode`**：产品 / 类别 / 功能位掩码与逻辑 |
+| 04 | [04-license-code.md](04-license-code.md) | **`LicenseCode`**：产品 / 类别 / 特性位掩码与逻辑 |
 | 05 | [05-accepted-crc.md](05-accepted-crc.md) | Accepted CRC 白名单：提取原理与模式 |
 | 06 | [06-key-generation.md](06-key-generation.md) | 服务端密钥生成及其原理 |
 | 07 | [07-mathematics.md](07-mathematics.md) | GF(2) CRC 代数、仿射双射、可逆性、编码 |
