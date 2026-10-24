@@ -85,6 +85,12 @@ function persist(): void {
   saveState(state);
 }
 
+/** Basic mode keeps no activation key: draw a fresh random one and mirror it into the field. */
+function randomizeActivationKey(): void {
+  state.activationKey = randomActivationKey(state.version);
+  ($("actkey") as HTMLInputElement).value = state.activationKey;
+}
+
 /* ------------------------------------------------------------------ *
  * version-dependent view
  * ------------------------------------------------------------------ */
@@ -351,6 +357,8 @@ function passwordField(): HTMLInputElement {
 }
 
 function generate(): void {
+  // Basic mode persists no activation key, so draw a fresh random one per generation.
+  if (state.mode === "basic") randomizeActivationKey();
   if (!ensureInputs()) return;
   const message = currentMessage();
   const signature = generateSignature(message, state.acceptedCrc);
@@ -580,7 +588,12 @@ function wire(): void {
   });
 
   // mode + language
-  const toggleMode = () => { state.mode = state.mode === "advanced" ? "basic" : "advanced"; renderMode(); persist(); };
+  const toggleMode = () => {
+    state.mode = state.mode === "advanced" ? "basic" : "advanced";
+    if (state.mode === "basic") randomizeActivationKey();
+    renderMode();
+    persist();
+  };
   $("mode-toggle").addEventListener("click", toggleMode);
   $("btn-advanced-basic").addEventListener("click", () => { state.mode = "advanced"; renderMode(); persist(); });
 

@@ -167,15 +167,19 @@ export function loadState(): State {
     const table = Array.isArray(saved.table) && saved.table.every((v) => Number.isInteger(v) && v > 0 && v <= 0xffff)
       ? saved.table as number[]
       : dflt.table;
-    return {
+    const mode: Mode = saved.mode === "advanced" ? "advanced" : "basic";
+    const next: State = {
       ...base,
       ...saved,
       version,
       table,
       tableSource: saved.tableSource ?? dflt.source,
-      mode: saved.mode === "advanced" ? "advanced" : "basic",
+      mode,
       acceptedCrc: Number.isInteger(saved.acceptedCrc) ? saved.acceptedCrc! : defaultAcceptedCrcFor(version, table),
     };
+    // Basic mode keeps no activation key: draw a fresh random one on every load.
+    if (mode === "basic") next.activationKey = randomActivationKey(version);
+    return next;
   } catch {
     return base;
   }
@@ -183,7 +187,9 @@ export function loadState(): State {
 
 export function saveState(state: State): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Basic mode does not persist the activation key (it is random every time).
+    const payload = state.mode === "basic" ? { ...state, activationKey: "" } : state;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {
     /* private mode: ignore */
   }
