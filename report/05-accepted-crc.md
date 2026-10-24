@@ -18,33 +18,66 @@ There is **one table per build**. It is the closest thing in the scheme to a key
 ## 5.2 Extraction principle (what makes them findable in a binary)
 
 The whitelist is stored as a plain array of little-endian `u32`, each a valid 16-bit
-value, immediately followed by its element count:
+value, with the element count right after it:
 
 ```
   .data:  [ m_0 ][ m_1 ] … [ m_{K-1} ][ K ]        (each cell 4 bytes)
 ```
 
-and it is *used* from the checker by
+and it is *used* from the checker by a membership loop:
 
 ```
-  mov  r8d, [rip + <count>]      ; K
   lea  rcx, [rip + <table>]      ; &m_0
-  ...
+  ...                            ; a build may load <count>, or fold K into the loop
   cmp  [rcx], eax                ; table[i] == acceptedCrc ?
   je   accepted
 ```
 
-So extraction proceeds in two independent, cross-checkable ways:
+So the robust extraction is **code-guided, with the shape used as a validator**:
 
-1. **Structural scan.** Find the longest run of consecutive `u32` values that all lie in
-   `(0, 0x10000)` and whose *next* `u32` equals the run length. That is a candidate
-   whitelist. (Generalises: also accept the count as the last element of the run.)
-2. **Code-reference scan.** Compute `target = VA(instrEnd) + disp32` for every
-   RIP-relative `mov r8d,[rip+…]` / `lea rcx,[rip+…]`; keep the target that both lies in
-   `.data`/`.rdata` and points at a valid table start from step 1.
+1. **Locate the validator.** Find the licence strings (`Bad password.`,
+   `Password not in format dddd-ddd-ddd.`), the code that references them (RIP-relative
+   `lea`/`mov`), and the enclosing functions from `.pdata`.
+2. **Collect its data operands.** Every RIP-relative operand inside those functions that
+   points into `.data`/`.rdata`.
+3. **Validate the shape.** A candidate starts a table when its first `K` words all lie in
+   `1..0xffff` and the word right after them equals `K`. Both directions are tested, since a
+   build may reference the table *or* only its length.
 
-Both are implemented in [code/accepted-crc-table.ts](code/accepted-crc-table.ts); neither needs a
-disassembler.
+A purely **structural** scan (a run of small `u32` whose next word, or last element, is the
+run length) is kept only as a fallback, and on its own it is not reliable:
+
+- the count may be folded into the code as a constant, so nothing in the data links it to
+  the array — and the naive rule depends on that adjacency;
+- worse, the run of "small values" can continue *past* the count into the next array, so the
+  run length is no longer `K` and the "next word == run length" test fails.
+
+**Example (14.2).** In the 14.2 kernel (`WolframEngine.dll`, SHA-256
+`cb58c2541b8f40abb0292859d5004a77a61d300f2f1efdb17c5a5feed530765d`) both things happen: the
+data after the count is another array of 16-bit values, so the structural scan finds nothing,
+while the code-guided scan finds the table at **`0x18681adf0`** (count `21`, referenced from
+`0x181c3587b`). The 15.0.1 build is the lucky case: the word after its count is `> 0xffff`,
+so the naive scan happens to work:
+
+| item | 15.0.1 | 14.2 |
+| --- | --- | --- |
+| table VA | `0x186d4dd40` | `0x18681adf0` |
+| count | `21` (stored at `0x186d4dd94`) | `21` (stored at `0x18681ae44`, folded into the loop) |
+| referenced from | `0x181cf3650` (the CRC checker) | `0x181c35160` (the CRC checker) |
+
+```
+14.2 :  61182  31889  22384  31827  25836  29678  16905  35954  44011  33360  35944
+        59222  46288  52525   8925  26304  54607  45075  21527  53711  24735
+```
+
+18 of the 21 values are shared with 15.0.1 — in fact 14.2's list is a *rotation* of the
+15.0.1 list with three substitutions (`61182`, `44011`, `33360` in, `28536`, `11836`,
+`61068` out), which is itself evidence that the table is build-specific and generated rather
+than hand-picked.
+
+Both methods are implemented in [code/accepted-crc-table.ts](code/accepted-crc-table.ts)
+(`extractAcceptedCrcTables()` = code-guided first, structural scan as a fallback); neither
+needs a disassembler.
 
 ## 5.3 The v15.0.1 whitelist, as extracted
 

@@ -21,7 +21,7 @@ node accepted-crc-table.ts "…\WolframEngine.dll"     # extract the table from 
 | --- | --- |
 | `mathpass.ts` | `crc16`, `crc16Uint16`, `solveLinear16`, `solveAppend2`, `extract`, `messageOf`, `messageOfLegacy`, `acceptedCrcOf`, `acceptedCrcOfSignature`, `verify`, `verifyMessage`, `verifySignature`, `generateSignature`, `generatePassword`, `generatePasswordLegacy`, `ACCEPTED_CRC_TABLE_V15_0_1` |
 | `licenseCode.ts` | `LICENSE_BITS`, `licenseCodeValue`, `hasBit`, `decodeLicenseCode` — the `LicenseCode` bitmask |
-| `accepted-crc-table.ts` | `parsePe`, `findCodeRefs`, `scanAcceptedCrcTables` — extract the accepted-CRC table from a PE |
+| `accepted-crc-table.ts` | `parsePe`, `findCodeRefs`, `extractAcceptedCrcTables` (code-guided + shape fallback), `findAcceptedCrcTables`, `scanAcceptedCrcTables` — extract the accepted-CRC table from a PE |
 | `cli.ts` | command line: `verify` / `acceptedcrc` / `generate` / `decode` / `table` |
 | `selfcheck.ts` | generates and verifies a synthetic placeholder licence; checks every table entry and every `LicenseCode` case |
 

@@ -1,13 +1,20 @@
 /**
  * pe.ts — minimal PE reader and accepted-CRC table scanner, for the browser.
  *
- * It is the browser twin of report/code/accepted-crc-table.ts (which runs on Node's
- * Buffer); the algorithm is identical:
+ * Browser twin of report/code/accepted-crc-table.ts. The table is located by *code*, not by
+ * guessing at the data layout:
  *
- *   1. the table is a run of little-endian u32, each a valid 16-bit value, immediately
- *      followed by the run's element count;
- *   2. the real one is read by the validator with a RIP-relative `lea`/`mov`, so each
- *      candidate is cross-checked for a code reference to its address.
+ *   1. the validator is found through its own error strings ("Bad password.", …);
+ *   2. its enclosing function comes from `.pdata`;
+ *   3. every RIP-relative data operand inside that function is checked for the table shape
+ *      — K values in 1..0xffff with the word K right after them. Both directions are tried,
+ *      because a build may reference the table or only its length.
+ *
+ * A purely shape-based scan (a "run of small u32 followed by K") is not enough: in the 14.2
+ * kernel the run continues past the length into the next array, so the run length never
+ * equals the stored count and the table is missed.
+ *
+ * All addresses are 64-bit and are never truncated to 32 bits.
  */
 
 export interface PeSection {
@@ -29,9 +36,11 @@ export interface CrcTableCandidate {
   fileOffset: number;
   count: number;
   values: number[];
+  /** code VAs that reference the table (or its length) */
   refs: number[];
-  /** false when the (expensive) code-reference scan was skipped for this candidate. */
+  /** false when the code-reference scan was skipped for this candidate */
   scanned: boolean;
+  method: "code-guided" | "shape-scan";
 }
 
 export function parsePe(buf: Uint8Array): PeImage {
@@ -42,10 +51,10 @@ export function parsePe(buf: Uint8Array): PeImage {
   const numSec = dv.getUint16(peOff + 6, true);
   const optSize = dv.getUint16(peOff + 20, true);
   const optOff = peOff + 24;
-  const magic = dv.getUint16(optOff, true); // PE32 (0x10b) or PE32+ (0x20b)
-  const imageBase = magic === 0x20b
+  const peMagic = dv.getUint16(optOff, true); // PE32 (0x10b) or PE32+ (0x20b)
+  const imageBase = peMagic === 0x20b
     ? Number(dv.getBigUint64(optOff + 24, true))
-    : dv.getUint32(optOff + 28, true) >>> 0;
+    : dv.getUint32(optOff + 28, true);
   const secOff = optOff + optSize;
   const sections: PeSection[] = [];
   for (let i = 0; i < numSec; i++) {
@@ -62,16 +71,22 @@ export function parsePe(buf: Uint8Array): PeImage {
   return { imageBase, sections };
 }
 
+const span = (s: PeSection) => Math.max(s.rsize, s.vsize);
+const DATA_SECTIONS = [".rdata", ".data", "_RDATA"];
 const dvOf = (buf: Uint8Array) => new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
 
-function sectionEnd(buf: Uint8Array, s: PeSection): number {
-  return Math.min(buf.length, s.roff + Math.min(s.rsize, s.vsize));
+function sectionOf(sections: PeSection[], va: number): PeSection | undefined {
+  return sections.find((s) => va >= s.va && va < s.va + span(s));
 }
 
-function fileOffsetToVA(sections: PeSection[], fo: number): number | null {
-  for (const s of sections)
-    if (fo >= s.roff && fo < s.roff + Math.max(s.rsize, s.vsize)) return s.va + (fo - s.roff);
-  return null;
+function vaToFo(sections: PeSection[], va: number): number {
+  const s = sectionOf(sections, va);
+  return s ? s.roff + (va - s.va) : -1;
+}
+
+function foToVA(sections: PeSection[], fo: number): number {
+  for (const s of sections) if (fo >= s.roff && fo < s.roff + span(s)) return s.va + (fo - s.roff);
+  return -1;
 }
 
 /**
@@ -85,7 +100,7 @@ export function findCodeRefs(buf: Uint8Array, sections: PeSection[], targetVA: n
   for (const s of sections) {
     if (!s.code) continue;
     const start = s.roff;
-    const end = sectionEnd(buf, s);
+    const end = Math.min(buf.length, s.roff + Math.min(s.rsize, s.vsize));
     for (let p = start; p + 7 <= end; p++) {
       const b0 = buf[p], b1 = buf[p + 1], m = buf[p + 2];
       let dispOff = -1;
@@ -95,22 +110,146 @@ export function findCodeRefs(buf: Uint8Array, sections: PeSection[], targetVA: n
       if (dispOff < 0) continue;
       const disp = dv.getInt32(dispOff, true);
       const ip = s.va + (dispOff + 4 - s.roff);
-      // RIP-relative: the hardware adds the signed displacement to the 64-bit IP.
       if (ip + disp === targetVA) refs.push(s.va + (p - s.roff));
     }
   }
   return refs;
 }
 
-/** Scan every section for whitelist-shaped runs (see the file header). */
+interface FnRange { begin: number; end: number }
+
+function functionRanges(buf: Uint8Array, image: PeImage): FnRange[] {
+  const pdata = image.sections.find((s) => s.name === ".pdata" || s.name === ".PDATA");
+  if (!pdata) return [];
+  const dv = dvOf(buf);
+  const n = Math.min(pdata.rsize, pdata.vsize) / 12;
+  const out: FnRange[] = [];
+  for (let i = 0; i < n; i++) {
+    const o = pdata.roff + i * 12;
+    out.push({ begin: image.imageBase + dv.getUint32(o, true), end: image.imageBase + dv.getUint32(o + 4, true) });
+  }
+  return out;
+}
+
+/** Every RIP-relative operand target inside [begin, end) — both the REX and short forms. */
+function ripTargetsInRange(buf: Uint8Array, sections: PeSection[], begin: number, end: number): number[] {
+  const dv = dvOf(buf);
+  const s = sectionOf(sections, begin);
+  if (!s) return [];
+  const a = begin - s.va + s.roff;
+  const b = Math.min(buf.length, Math.min(s.roff + Math.min(s.rsize, s.vsize), end - s.va + s.roff));
+  const out = new Set<number>();
+  for (let p = a; p + 7 <= b; p++) {
+    if ((buf[p] & 0xf0) === 0x40 && (buf[p + 2] & 0xc7) === 0x05) {
+      const at = foToVA(sections, p + 3);
+      if (at > 0) out.add(at + 4 + dv.getInt32(p + 3, true));
+    } else if ((buf[p + 1] & 0xc7) === 0x05) {
+      const at = foToVA(sections, p + 2);
+      if (at > 0) out.add(at + 4 + dv.getInt32(p + 2, true));
+    }
+  }
+  return [...out];
+}
+
+function u32At(buf: Uint8Array, sections: PeSection[], va: number): number {
+  const dv = dvOf(buf);
+  const fo = vaToFo(sections, va);
+  return fo >= 0 && fo + 4 <= buf.length ? dv.getUint32(fo, true) : -1;
+}
+
+function lengthsWithTrailingCount(buf: Uint8Array, sections: PeSection[], va: number, maxLen = 128): number[] {
+  const out: number[] = [];
+  for (let k = 5; k <= maxLen; k++) {
+    let ok = true;
+    for (let i = 0; i < k; i++) {
+      const v = u32At(buf, sections, va + i * 4);
+      if (v < 1 || v > 0xffff) { ok = false; break; }
+    }
+    if (!ok) break;
+    if (u32At(buf, sections, va + k * 4) === k) out.push(k);
+  }
+  return out;
+}
+
+function lengthsWithLeadingCount(buf: Uint8Array, sections: PeSection[], va: number, maxLen = 128): number[] {
+  const k = u32At(buf, sections, va);
+  if (k < 5 || k > maxLen) return [];
+  for (let i = 1; i <= k; i++) {
+    const v = u32At(buf, sections, va - i * 4);
+    if (v < 1 || v > 0xffff) return [];
+  }
+  return [k];
+}
+
+const LICENCE_STRINGS = ["Bad password.", "Password not in format dddd-ddd-ddd."];
+
+function makeCandidate(
+  buf: Uint8Array, sections: PeSection[], va: number, count: number, method: CrcTableCandidate["method"],
+): CrcTableCandidate {
+  const values: number[] = [];
+  for (let i = 0; i < count; i++) values.push(u32At(buf, sections, va + i * 4));
+  return { valueVA: va, fileOffset: vaToFo(sections, va), count, values, refs: [], scanned: true, method };
+}
+
+/** Locate the accepted-CRC table by walking the validator and validating the data shape. */
+export function findAcceptedCrcTables(buf: Uint8Array, image: PeImage): CrcTableCandidate[] {
+  const { sections } = image;
+  const ranges = functionRanges(buf, image);
+  const fns = new Map<number, FnRange>();
+  const encoder = new TextEncoder();
+
+  for (const needle of LICENCE_STRINGS) {
+    const bytes = encoder.encode(needle);
+    let fo = -1;
+    outer: for (let i = 0; i + bytes.length <= buf.length; i++) {
+      for (let j = 0; j < bytes.length; j++) if (buf[i + j] !== bytes[j]) continue outer;
+      fo = i; break;
+    }
+    if (fo < 0) continue;
+    const strVA = foToVA(sections, fo);
+    if (strVA < 0) continue;
+    for (const ref of findCodeRefs(buf, sections, strVA)) {
+      const fn = ranges.find((r) => ref >= r.begin && ref < r.end);
+      if (fn) fns.set(fn.begin, fn);
+    }
+  }
+
+  const found = new Map<string, CrcTableCandidate>();
+  for (const fn of fns.values()) {
+    for (const target of ripTargetsInRange(buf, sections, fn.begin, fn.end)) {
+      const sec = sectionOf(sections, target);
+      if (!sec || !DATA_SECTIONS.includes(sec.name)) continue;
+      for (const k of lengthsWithTrailingCount(buf, sections, target)) {
+        const c = makeCandidate(buf, sections, target, k, "code-guided");
+        found.set(`${c.valueVA}/${c.count}`, c);
+      }
+      for (const k of lengthsWithLeadingCount(buf, sections, target)) {
+        const c = makeCandidate(buf, sections, target - k * 4, k, "code-guided");
+        found.set(`${c.valueVA}/${c.count}`, c);
+      }
+    }
+  }
+
+  const out = [...found.values()];
+  for (const c of out) {
+    const refs = new Set<number>();
+    for (const va of [c.valueVA, c.valueVA + c.count * 4]) {
+      for (const r of findCodeRefs(buf, sections, va)) refs.add(r);
+    }
+    c.refs = [...refs];
+  }
+  return out.sort((a, b) => b.refs.length - a.refs.length || b.count - a.count);
+}
+
+/** Shape-only fallback: a run of K u32 in (0, 0x10000) followed by (or ending with) K. */
 export function scanAcceptedCrcTables(
   buf: Uint8Array, sections: PeSection[], minLen = 5, maxLen = 128,
-): Array<{ valueVA: number; fileOffset: number; count: number; values: number[] }> {
+): CrcTableCandidate[] {
   const dv = dvOf(buf);
-  const out: Array<{ valueVA: number; fileOffset: number; count: number; values: number[] }> = [];
+  const out: CrcTableCandidate[] = [];
   for (const s of sections) {
     const start = s.roff;
-    const end = sectionEnd(buf, s);
+    const end = Math.min(buf.length, s.roff + Math.min(s.rsize, s.vsize));
     let runStart = -1, runLen = 0;
     const flush = () => {
       if (runLen >= minLen && runLen <= maxLen) {
@@ -121,8 +260,10 @@ export function scanAcceptedCrcTables(
         if (after + 4 <= end && dv.getUint32(after, true) === runLen) count = runLen;
         else if (values[runLen - 1] === runLen - 1) { count = runLen - 1; values.pop(); }
         if (count > 0) {
-          const va = fileOffsetToVA(sections, runStart);
-          if (va != null) out.push({ valueVA: va, fileOffset: runStart, count, values });
+          const va = foToVA(sections, runStart);
+          if (va > 0) {
+            out.push({ valueVA: va, fileOffset: runStart, count, values, refs: [], scanned: false, method: "shape-scan" });
+          }
         }
       }
       runStart = -1; runLen = 0;
@@ -137,18 +278,14 @@ export function scanAcceptedCrcTables(
   return out;
 }
 
-/** Full analysis: scan, then cross-check the most plausible candidates with a code-ref scan. */
-export function scanWithCodeRefs(buf: Uint8Array, image: PeImage, maxCandidates = 8): CrcTableCandidate[] {
-  // The real table is one of the longest runs, so check those first; a full code-ref
-  // scan walks every byte of .text, which is expensive on a 100 MB module.
-  const all = scanAcceptedCrcTables(buf, image.sections).sort((a, b) => b.count - a.count);
-  const refsByCandidate = new Map<number, number[]>();
-  let scanned = 0;
-  for (const t of all) {
-    if (scanned++ >= maxCandidates) break;
-    refsByCandidate.set(t.valueVA, findCodeRefs(buf, image.sections, t.valueVA));
+/** Primary entry point: code-guided first, shape scan as a fallback. */
+export function scanWithCodeRefs(buf: Uint8Array, image: PeImage): CrcTableCandidate[] {
+  const guided = findAcceptedCrcTables(buf, image);
+  if (guided.length) return guided;
+  const shape = scanAcceptedCrcTables(buf, image.sections);
+  for (const c of shape) {
+    c.refs = findCodeRefs(buf, image.sections, c.valueVA);
+    c.scanned = true;
   }
-  return all
-    .map((t) => ({ ...t, refs: refsByCandidate.get(t.valueVA) ?? [], scanned: refsByCandidate.has(t.valueVA) }))
-    .sort((a, b) => Number(b.refs.length > 0) - Number(a.refs.length > 0) || b.count - a.count);
+  return shape.sort((a, b) => Number(b.refs.length > 0) - Number(a.refs.length > 0) || b.count - a.count);
 }

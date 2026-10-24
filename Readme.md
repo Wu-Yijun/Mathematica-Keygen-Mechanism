@@ -59,7 +59,7 @@ import {
   ACCEPTED_CRC_TABLE_V15_0_1,                       // the built-in table
 } from "./report/code/mathpass.ts";
 import { decodeLicenseCode, LICENSE_BITS } from "./report/code/licenseCode.ts";
-import { parsePe, findCodeRefs, scanAcceptedCrcTables } from "./report/code/accepted-crc-table.ts";
+import { parsePe, findCodeRefs, findAcceptedCrcTables, extractAcceptedCrcTables, scanAcceptedCrcTables } from "./report/code/accepted-crc-table.ts";
 
 const pw = generatePassword("1234-56789-12345", "1234-5678-ABCDEF", "800001", "20300101", 59222);
 console.log(verify("1234-56789-12345", "1234-5678-ABCDEF", pw, ACCEPTED_CRC_TABLE_V15_0_1).valid); // true
