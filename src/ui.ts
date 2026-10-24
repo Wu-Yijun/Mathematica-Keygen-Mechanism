@@ -262,6 +262,21 @@ function addKv(labelKey: string, value: string): void {
   dl.append(dt, dd);
 }
 
+/**
+ * Basic mode never shows the activation-key card, so the key that was (randomly)
+ * used has to appear here, next to the password, or the result is unusable.
+ */
+function renderBasicResult(): void {
+  const dl = $("basic-kv");
+  dl.replaceChildren();
+  if (state.mode !== "basic") return;
+  const dt = document.createElement("dt");
+  dt.textContent = t("result.kv.actkey");
+  const dd = document.createElement("dd");
+  dd.textContent = state.activationKey;
+  dl.append(dt, dd);
+}
+
 interface Analysis {
   message: string;
   modeLabel: string;
@@ -310,6 +325,7 @@ function showAnalysis(a: Analysis): void {
     addKv("result.kv.expiry", `${a.expiry} / ${left === null ? "—" : left < 0 ? t("result.expired") : tf("result.daysLeft", { n: left })}`);
   }
   setVerdict(r.valid ? "valid" : "invalid", r.valid ? `0x${r.acceptedCrc.toString(16).toUpperCase()}` : "");
+  renderBasicResult();
 }
 
 /* ------------------------------------------------------------------ *
@@ -467,6 +483,7 @@ function renderMode(): void {
   $("workbench").className = `wb ${advanced ? "wb--advanced" : "wb--basic"}${$("workbench").classList.contains("is-animating") ? " is-animating" : ""}`;
   $("mode-toggle-text").textContent = t(advanced ? "nav.mode.toBasic" : "nav.mode.toAdvanced");
   $("mode-toggle").classList.toggle("chip--accent", !advanced);
+  renderBasicResult();
 }
 
 function renderVersionNote(): void {
@@ -533,6 +550,7 @@ function render(): void {
   renderInputs();
   renderLicenseCode();
   renderCrcField();
+  renderBasicResult();
   if (lastAnalysis) showAnalysis(lastAnalysis);
   else setVerdict("idle");
   persist();

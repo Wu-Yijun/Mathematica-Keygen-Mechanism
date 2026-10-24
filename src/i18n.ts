@@ -123,6 +123,7 @@ export const STRINGS: Record<string, Text> = {
   "result.password": { zh: "密码", en: "password" },
   "result.kv.message": { zh: "MESSAGE", en: "MESSAGE" },
   "result.kv.version": { zh: "版本模式", en: "version mode" },
+  "result.kv.actkey": { zh: "激活码（随机生成）", en: "Activation key (random)" },
   "result.kv.n1": { zh: "n1（签名）", en: "n1 (signature)" },
   "result.kv.n2": { zh: "n2（签名）", en: "n2 (signature)" },
   "result.kv.n0": { zh: "n0 = n1 + 0x8D06", en: "n0 = n1 + 0x8D06" },
