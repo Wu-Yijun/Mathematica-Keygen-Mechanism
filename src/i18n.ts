@@ -169,6 +169,7 @@ export const STRINGS: Record<string, Text> = {
   "table.col.values": { zh: "值", en: "values" },
   "table.use": { zh: "用作当前表", en: "Use this table" },
   "table.referenced": { zh: "被校验器引用", en: "referenced by the validator" },
+  "table.membership": { zh: "成员判定表", en: "membership test" },
   "table.unreferenced": { zh: "未引用", en: "not referenced" },
   "table.unchecked": { zh: "未检查", en: "not checked" },
 

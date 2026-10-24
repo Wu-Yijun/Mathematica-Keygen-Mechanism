@@ -70,10 +70,37 @@ so the naive scan happens to work:
         59222  46288  52525   8925  26304  54607  45075  21527  53711  24735
 ```
 
-18 of the 21 values are shared with 15.0.1 — in fact 14.2's list is a *rotation* of the
-15.0.1 list with three substitutions (`61182`, `44011`, `33360` in, `28536`, `11836`,
-`61068` out), which is itself evidence that the table is build-specific and generated rather
-than hand-picked.
+**A build may carry two membership lists.** In 14.2 the validator tests the CRC against
+*two* arrays — `0x18681adf0` (21 entries) and `0x18681ae48` (10 entries) — and both are
+compared element-by-element (`lea rax,[rip+…]` then `cmp [rax], ebx`, twice). The two lists
+are disjoint. Which one serves which password is not settled by the bytes alone, but their
+stability is telling:
+
+| binary | 10-entry list | 21-entry list |
+| --- | --- | --- |
+| 14.2 `WolframEngine.dll` | present | 14.2's own |
+| 15.0.1 `WolframEngine.dll` | **absent** | 15.0.1's own |
+| 15.0.1 `SessionManager.exe` | identical to 14.2's | identical to the 15.0.1 kernel's |
+| 15.0.1 `WSMKernelX.exe` | identical to 14.2's | identical to the 15.0.1 kernel's |
+
+The 10-entry list is a **frozen constant** of the licensing code (byte-identical in a 14.2
+kernel and two 15.0.1 components), while the 21-entry list is **regenerated per build** (the
+15.0.1 kernel, SessionManager and WSMKernelX all carry the same one, and it differs from
+14.2's). The natural reading — not yet proven — is that the 10-entry list is the whitelist of
+the older (≤ 14.0) password format, whose scheme stopped changing, and that the 15.0.1
+*kernel* simply no longer carries that path. Two more ways to settle it: feed more builds to
+`extractAcceptedCrcTables()` and count the membership lists per binary, or craft a
+legacy-format password at runtime and see whether the kernel accepts it.
+
+The two 21-entry lists are close but not a rotation: 18 of 21 values are shared, yet the
+shared values are **re-ordered in blocks** (15.0.1 reads `A B C`; 14.2 reads
+`61182 B 44011 33360 A C`, with A = 9 values, B = 7, C = 2), and each build contributes three
+values the other lacks (14.2 adds `61182`, `44011`, `33360`; 15.0.1 adds `28536`, `11836`,
+`61068`). The public v14.1-era list in `main@v14.1.0.js` shares four values with 14.2
+(`33360`, `44011`, `35944`, `59222`) but only two with 15.0.1 — and its default `24816` is in
+neither. Two kernels are far too small a sample for a rule; what the data does show is that
+the table *evolves by edit* (values come and go, mostly shared with the neighbouring build)
+rather than being drawn at random per build.
 
 Both methods are implemented in [code/accepted-crc-table.ts](code/accepted-crc-table.ts)
 (`extractAcceptedCrcTables()` = code-guided first, structural scan as a fallback); neither

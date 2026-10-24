@@ -124,21 +124,7 @@ export function functionContaining(ranges: Array<{ begin: number; end: number }>
  * 32-bit truncation anywhere.
  */
 export function ripTargetsInRange(buf: Buffer, sections: Section[], begin: number, end: number): number[] {
-  const s = sectionOf(sections, begin);
-  if (!s) return [];
-  const a = begin - s.va + s.roff;
-  const b = Math.min(s.roff + Math.min(s.rsize, s.vsize), end - s.va + s.roff);
-  const out = new Set<number>();
-  for (let p = a; p + 7 <= b; p++) {
-    if ((buf[p] & 0xf0) === 0x40 && (buf[p + 2] & 0xc7) === 0x05) {
-      const at = fileOffsetToVA(sections, p + 3);
-      if (at > 0) out.add(at + 4 + buf.readInt32LE(p + 3));
-    } else if ((buf[p + 1] & 0xc7) === 0x05) {
-      const at = fileOffsetToVA(sections, p + 2);
-      if (at > 0) out.add(at + 4 + buf.readInt32LE(p + 2));
-    }
-  }
-  return [...out];
+  return [...new Set(ripOperandsInRange(buf, sections, begin, end).map((o) => o.target))];
 }
 
 export interface AcceptedCrcTableCandidate {
@@ -152,6 +138,52 @@ export interface AcceptedCrcTableCandidate {
   method: "code-guided" | "shape-scan";
   /** true when the (expensive) code-reference scan was skipped for this candidate */
   scanned: boolean;
+  /**
+   * true when a reference site is immediately followed by a compare against the array
+   * (`cmp [reg],reg`), i.e. this array is compared element-by-element with the computed
+   * CRC — the accepted-CRC membership test. Other arrays touched by the validator may be
+   * shape-valid too but are not what condition B tests against.
+   */
+  membership: boolean;
+}
+
+/** RIP-relative operand sites: { target VA, instruction VA, instruction length }. */
+export function ripOperandsInRange(
+  buf: Buffer, sections: Section[], begin: number, end: number,
+): Array<{ target: number; at: number; len: number }> {
+  const s = sectionOf(sections, begin);
+  if (!s) return [];
+  const a = begin - s.va + s.roff;
+  const b = Math.min(s.roff + Math.min(s.rsize, s.vsize), end - s.va + s.roff);
+  const out: Array<{ target: number; at: number; len: number }> = [];
+  for (let p = a; p + 7 <= b; p++) {
+    if ((buf[p] & 0xf0) === 0x40 && (buf[p + 2] & 0xc7) === 0x05) {
+      const at = fileOffsetToVA(sections, p + 3);
+      if (at > 0) out.push({ target: at + 4 + buf.readInt32LE(p + 3), at: fileOffsetToVA(sections, p), len: 7 });
+    } else if ((buf[p + 1] & 0xc7) === 0x05) {
+      const at = fileOffsetToVA(sections, p + 2);
+      if (at > 0) out.push({ target: at + 4 + buf.readInt32LE(p + 2), at: fileOffsetToVA(sections, p), len: 6 });
+    }
+  }
+  return out;
+}
+
+/**
+ * Is the code right after the RIP-relative load a compare against that operand?
+ * Compilers often pad the load with a multi-byte NOP before the loop's `cmp`, so pure
+ * padding bytes (0x90 / `66 0f 1f …` / `0f 1f …`) are skipped first.
+ */
+function isMembershipSite(buf: Buffer, sections: Section[], at: number, len: number): boolean {
+  let fo = vaToFileOffset(sections, at + len);
+  if (fo < 0) return false;
+  const isNopByte = (b: number) => b === 0x90 || b === 0x66 || b === 0x0f || b === 0x1f
+    || b === 0x00 || (b >= 0x40 && b <= 0x4f) || b === 0x24 || b === 0x44 || b === 0x80;
+  for (let i = 0; i < 16 && fo + i < buf.length; i++) {
+    const b = buf[fo + i];
+    if (b === 0x39 || b === 0x3b || b === 0x38 || b === 0x3a) return true; // cmp r/m,r · cmp r,r/m
+    if (!isNopByte(b)) return false;
+  }
+  return false;
 }
 
 const u32At = (buf: Buffer, sections: Section[], va: number): number => {
@@ -189,11 +221,12 @@ function lengthsWithLeadingCount(buf: Buffer, sections: Section[], va: number, m
 }
 
 function makeCandidate(
-  buf: Buffer, sections: Section[], va: number, count: number, method: AcceptedCrcTableCandidate["method"], referencedAt: number[],
+  buf: Buffer, sections: Section[], va: number, count: number, method: AcceptedCrcTableCandidate["method"],
+  membership = false,
 ): AcceptedCrcTableCandidate {
   const values: number[] = [];
   for (let i = 0; i < count; i++) values.push(u32At(buf, sections, va + i * 4));
-  return { valueVA: va, fileOffset: vaToFileOffset(sections, va), count, values, referencedAt, method, scanned: true };
+  return { valueVA: va, fileOffset: vaToFileOffset(sections, va), count, values, referencedAt: [], method, scanned: true, membership };
 }
 
 const LICENCE_STRINGS = ["Bad password.", "Password not in format dddd-ddd-ddd."];
@@ -220,15 +253,18 @@ export function findAcceptedCrcTables(buf: Buffer, image: PeImage): AcceptedCrcT
 
   const found = new Map<string, AcceptedCrcTableCandidate>();
   for (const fn of functions.values()) {
-    for (const target of ripTargetsInRange(buf, sections, fn.begin, fn.end)) {
+    const operands = ripOperandsInRange(buf, sections, fn.begin, fn.end);
+    for (const op of operands) {
+      const target = op.target;
       const sec = sectionOf(sections, target);
       if (!sec || !DATA_SECTIONS.includes(sec.name)) continue;
+      const membership = isMembershipSite(buf, sections, op.at, op.len);
       for (const k of lengthsWithTrailingCount(buf, sections, target)) {
-        const c = makeCandidate(buf, sections, target, k, "code-guided", []);
+        const c = makeCandidate(buf, sections, target, k, "code-guided", membership);
         found.set(`${c.valueVA}/${c.count}`, c);
       }
       for (const k of lengthsWithLeadingCount(buf, sections, target)) {
-        const c = makeCandidate(buf, sections, target - k * 4, k, "code-guided", []);
+        const c = makeCandidate(buf, sections, target - k * 4, k, "code-guided", membership);
         found.set(`${c.valueVA}/${c.count}`, c);
       }
     }
@@ -243,7 +279,10 @@ export function findAcceptedCrcTables(buf: Buffer, image: PeImage): AcceptedCrcT
     }
     c.referencedAt = [...refs].map((r) => Number(r));
   }
-  return out.sort((a, b) => b.referencedAt.length - a.referencedAt.length || b.count - a.count);
+  return out.sort((a, b) =>
+    Number(b.membership) - Number(a.membership) ||
+    b.referencedAt.length - a.referencedAt.length ||
+    b.count - a.count);
 }
 
 /**
@@ -270,7 +309,7 @@ export function scanAcceptedCrcTables(buf: Buffer, sections: Section[], minLen =
           if (va > 0) {
             out.push({
               valueVA: va, fileOffset: runStart, count, values,
-              referencedAt: [], method: "shape-scan", scanned: false,
+              referencedAt: [], method: "shape-scan", scanned: false, membership: false,
             });
           }
         }
@@ -318,7 +357,8 @@ function main(): void {
     console.log(`candidate table  (${t.method})`);
     console.log(`  VA          : 0x${t.valueVA.toString(16)}  (file offset 0x${t.fileOffset.toString(16)})`);
     console.log(`  count       : ${t.count}`);
-    console.log(`  code refs   : ${refs.length ? refs.join(", ") : "(none)"}${refs.length ? "   <-- referenced by the validator" : ""}`);
+    console.log(`  code refs   : ${refs.length ? refs.join(", ") : "(none)"}`);
+    console.log(`  membership  : ${t.membership ? "yes — the validator compares the computed CRC against this array (condition B)" : "no — referenced by the validator, but no direct compare follows"}`);
     console.log(`  values      : ${t.values.join(", ")}\n`);
   }
 }

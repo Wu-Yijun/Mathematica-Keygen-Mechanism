@@ -41,6 +41,8 @@ export interface CrcTableCandidate {
   /** false when the code-reference scan was skipped for this candidate */
   scanned: boolean;
   method: "code-guided" | "shape-scan";
+  /** true when the validator compares the computed CRC against this array (membership test) */
+  membership: boolean;
 }
 
 export function parsePe(buf: Uint8Array): PeImage {
@@ -132,23 +134,42 @@ function functionRanges(buf: Uint8Array, image: PeImage): FnRange[] {
 }
 
 /** Every RIP-relative operand target inside [begin, end) — both the REX and short forms. */
-function ripTargetsInRange(buf: Uint8Array, sections: PeSection[], begin: number, end: number): number[] {
+function ripOperandsInRange(
+  buf: Uint8Array, sections: PeSection[], begin: number, end: number,
+): Array<{ target: number; at: number; len: number }> {
   const dv = dvOf(buf);
   const s = sectionOf(sections, begin);
   if (!s) return [];
   const a = begin - s.va + s.roff;
   const b = Math.min(buf.length, Math.min(s.roff + Math.min(s.rsize, s.vsize), end - s.va + s.roff));
-  const out = new Set<number>();
+  const out: Array<{ target: number; at: number; len: number }> = [];
   for (let p = a; p + 7 <= b; p++) {
     if ((buf[p] & 0xf0) === 0x40 && (buf[p + 2] & 0xc7) === 0x05) {
       const at = foToVA(sections, p + 3);
-      if (at > 0) out.add(at + 4 + dv.getInt32(p + 3, true));
+      if (at > 0) out.push({ target: at + 4 + dv.getInt32(p + 3, true), at: foToVA(sections, p), len: 7 });
     } else if ((buf[p + 1] & 0xc7) === 0x05) {
       const at = foToVA(sections, p + 2);
-      if (at > 0) out.add(at + 4 + dv.getInt32(p + 2, true));
+      if (at > 0) out.push({ target: at + 4 + dv.getInt32(p + 2, true), at: foToVA(sections, p), len: 6 });
     }
   }
-  return [...out];
+  return out;
+}
+
+/**
+ * Is the code right after the RIP-relative load a compare against that operand?
+ * Multi-byte NOP padding between the load and the loop's `cmp` is skipped.
+ */
+function isMembershipSite(buf: Uint8Array, sections: PeSection[], at: number, len: number): boolean {
+  const start = vaToFo(sections, at + len);
+  if (start < 0) return false;
+  const isNopByte = (b: number) => b === 0x90 || b === 0x66 || b === 0x0f || b === 0x1f
+    || b === 0x00 || (b >= 0x40 && b <= 0x4f) || b === 0x24 || b === 0x44 || b === 0x80;
+  for (let i = 0; i < 16 && start + i < buf.length; i++) {
+    const b = buf[start + i];
+    if (b === 0x39 || b === 0x3b || b === 0x38 || b === 0x3a) return true; // cmp r/m,r · cmp r,r/m
+    if (!isNopByte(b)) return false;
+  }
+  return false;
 }
 
 function u32At(buf: Uint8Array, sections: PeSection[], va: number): number {
@@ -185,10 +206,11 @@ const LICENCE_STRINGS = ["Bad password.", "Password not in format dddd-ddd-ddd."
 
 function makeCandidate(
   buf: Uint8Array, sections: PeSection[], va: number, count: number, method: CrcTableCandidate["method"],
+  membership = false,
 ): CrcTableCandidate {
   const values: number[] = [];
   for (let i = 0; i < count; i++) values.push(u32At(buf, sections, va + i * 4));
-  return { valueVA: va, fileOffset: vaToFo(sections, va), count, values, refs: [], scanned: true, method };
+  return { valueVA: va, fileOffset: vaToFo(sections, va), count, values, refs: [], scanned: true, method, membership };
 }
 
 /** Locate the accepted-CRC table by walking the validator and validating the data shape. */
@@ -216,15 +238,16 @@ export function findAcceptedCrcTables(buf: Uint8Array, image: PeImage): CrcTable
 
   const found = new Map<string, CrcTableCandidate>();
   for (const fn of fns.values()) {
-    for (const target of ripTargetsInRange(buf, sections, fn.begin, fn.end)) {
-      const sec = sectionOf(sections, target);
+    for (const op of ripOperandsInRange(buf, sections, fn.begin, fn.end)) {
+      const sec = sectionOf(sections, op.target);
       if (!sec || !DATA_SECTIONS.includes(sec.name)) continue;
-      for (const k of lengthsWithTrailingCount(buf, sections, target)) {
-        const c = makeCandidate(buf, sections, target, k, "code-guided");
+      const membership = isMembershipSite(buf, sections, op.at, op.len);
+      for (const k of lengthsWithTrailingCount(buf, sections, op.target)) {
+        const c = makeCandidate(buf, sections, op.target, k, "code-guided", membership);
         found.set(`${c.valueVA}/${c.count}`, c);
       }
-      for (const k of lengthsWithLeadingCount(buf, sections, target)) {
-        const c = makeCandidate(buf, sections, target - k * 4, k, "code-guided");
+      for (const k of lengthsWithLeadingCount(buf, sections, op.target)) {
+        const c = makeCandidate(buf, sections, op.target - k * 4, k, "code-guided", membership);
         found.set(`${c.valueVA}/${c.count}`, c);
       }
     }
@@ -238,7 +261,10 @@ export function findAcceptedCrcTables(buf: Uint8Array, image: PeImage): CrcTable
     }
     c.refs = [...refs];
   }
-  return out.sort((a, b) => b.refs.length - a.refs.length || b.count - a.count);
+  return out.sort((a, b) =>
+    Number(b.membership) - Number(a.membership) ||
+    b.refs.length - a.refs.length ||
+    b.count - a.count);
 }
 
 /** Shape-only fallback: a run of K u32 in (0, 0x10000) followed by (or ending with) K. */
@@ -262,7 +288,7 @@ export function scanAcceptedCrcTables(
         if (count > 0) {
           const va = foToVA(sections, runStart);
           if (va > 0) {
-            out.push({ valueVA: va, fileOffset: runStart, count, values, refs: [], scanned: false, method: "shape-scan" });
+            out.push({ valueVA: va, fileOffset: runStart, count, values, refs: [], scanned: false, method: "shape-scan", membership: false });
           }
         }
       }

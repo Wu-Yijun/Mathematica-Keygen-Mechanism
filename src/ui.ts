@@ -425,6 +425,7 @@ function renderCandidates(candidates: CrcTableCandidate[]): void {
     head.className = "candidate__head";
     head.textContent =
       `${t("table.col.va")} 0x${c.valueVA.toString(16).toUpperCase()} · ${t("table.col.count")} ${c.count} · ` +
+      (c.membership ? `${t("table.membership")} · ` : "") +
       `${t("table.col.refs")} ` + (c.scanned
         ? `${c.refs.length} ${c.refs.length ? `(${t("table.referenced")})` : `(${t("table.unreferenced")})`}`
         : t("table.unchecked"));
